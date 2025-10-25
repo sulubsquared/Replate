@@ -1,74 +1,25 @@
 import { useState, useEffect } from 'react';
-import { Calendar, Plus, Clock, ChefHat, Flame, Zap, Target } from 'lucide-react';
+import { Calendar, Clock, Flame, Zap, Trash2, ChevronLeft, ChevronRight } from 'lucide-react';
 
 const MealPlan = ({ userId }) => {
   const [mealPlan, setMealPlan] = useState({});
   const [loading, setLoading] = useState(true);
-  const [currentWeek, setCurrentWeek] = useState(new Date());
-
-  const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-  const slots = [
-    { id: 'breakfast', label: 'Breakfast', icon: '🌅' },
-    { id: 'lunch', label: 'Lunch', icon: '☀️' },
-    { id: 'dinner', label: 'Dinner', icon: '🌙' },
-    { id: 'snack', label: 'Snack', icon: '🍎' },
-  ];
+  const [currentWeek, setCurrentWeek] = useState(0);
 
   const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:3001';
 
+  const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+  const dayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+
   useEffect(() => {
     fetchMealPlan();
-  }, [userId, currentWeek]);
+  }, [userId]);
 
   const fetchMealPlan = async () => {
-    setLoading(true);
     try {
-      // Get the start and end of the current week
-      const startOfWeek = new Date(currentWeek);
-      startOfWeek.setDate(currentWeek.getDate() - currentWeek.getDay());
-      startOfWeek.setHours(0, 0, 0, 0);
-
-      const endOfWeek = new Date(startOfWeek);
-      endOfWeek.setDate(startOfWeek.getDate() + 6);
-      endOfWeek.setHours(23, 59, 59, 999);
-
-      // For now, we'll create a mock meal plan since we don't have the full API
-      // In a real implementation, you'd fetch from your meal_plan table
-    const mockMealPlan = {};
-    for (let i = 0; i < 7; i++) {
-      const date = new Date(startOfWeek);
-      date.setDate(startOfWeek.getDate() + i);
-      const dateStr = date.toISOString().split('T')[0];
-      
-      mockMealPlan[dateStr] = {
-        breakfast: i === 1 ? { 
-          title: 'Scrambled Eggs', 
-          time: '8:00 AM',
-          calories: 200,
-          protein: 15.0
-        } : null,
-        lunch: i === 2 ? { 
-          title: 'Simple Chicken and Rice', 
-          time: '12:30 PM',
-          calories: 450,
-          protein: 35.5
-        } : null,
-        dinner: i === 3 ? { 
-          title: 'Pasta with Tomato Sauce', 
-          time: '7:00 PM',
-          calories: 380,
-          protein: 12.5
-        } : null,
-        snack: i === 4 ? { 
-          title: 'Cheesy Baked Potato', 
-          time: '3:00 PM',
-          calories: 320,
-          protein: 8.5
-        } : null,
-      };
-    }
-      
-      setMealPlan(mockMealPlan);
+      const response = await fetch(`${API_BASE}/meal-plan/${userId}`);
+      const data = await response.json();
+      setMealPlan(data);
     } catch (error) {
       console.error('Error fetching meal plan:', error);
     } finally {
@@ -76,45 +27,30 @@ const MealPlan = ({ userId }) => {
     }
   };
 
-  const getWeekDates = () => {
-    const startOfWeek = new Date(currentWeek);
-    startOfWeek.setDate(currentWeek.getDate() - currentWeek.getDay());
-    
-    const weekDates = [];
-    for (let i = 0; i < 7; i++) {
-      const date = new Date(startOfWeek);
-      date.setDate(startOfWeek.getDate() + i);
-      weekDates.push(date);
+  const removeMeal = async (day, mealId) => {
+    try {
+      const response = await fetch(`${API_BASE}/meal-plan/${day}/${mealId}`, {
+        method: 'DELETE'
+      });
+
+      if (response.ok) {
+        fetchMealPlan();
+      }
+    } catch (error) {
+      console.error('Error removing meal:', error);
     }
-    return weekDates;
+  };
+
+  const calculateDailyMacros = (day) => {
+    const dayMeals = mealPlan[day] || [];
+    return dayMeals.reduce((totals, meal) => ({
+      calories: totals.calories + (meal.recipe.calories || 0),
+      protein: totals.protein + (meal.recipe.protein || 0)
+    }), { calories: 0, protein: 0 });
   };
 
   const navigateWeek = (direction) => {
-    const newWeek = new Date(currentWeek);
-    newWeek.setDate(currentWeek.getDate() + (direction * 7));
-    setCurrentWeek(newWeek);
-  };
-
-  const getDateString = (date) => {
-    return date.toISOString().split('T')[0];
-  };
-
-  const isToday = (date) => {
-    const today = new Date();
-    return date.toDateString() === today.toDateString();
-  };
-
-  const calculateDailyMacros = (dateStr) => {
-    const dayMeals = mealPlan[dateStr] || {};
-    let totalCalories = 0;
-    let totalProtein = 0;
-    
-    Object.values(dayMeals).forEach(meal => {
-      if (meal && meal.calories) totalCalories += meal.calories;
-      if (meal && meal.protein) totalProtein += meal.protein;
-    });
-    
-    return { totalCalories, totalProtein };
+    setCurrentWeek(prev => prev + direction);
   };
 
   if (loading) {
@@ -125,217 +61,93 @@ const MealPlan = ({ userId }) => {
     );
   }
 
-  const weekDates = getWeekDates();
-
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold text-burgundy-700">Meal Plan</h1>
-          <p className="text-gray-600 mt-1">
-            Plan your meals for the week
-          </p>
+          <p className="text-gray-600 mt-1">Plan your meals for the week</p>
         </div>
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-2">
           <button
             onClick={() => navigateWeek(-1)}
-            className="btn-secondary"
+            className="p-2 rounded-lg border border-gray-300 hover:bg-gray-50"
           >
-            Previous Week
+            <ChevronLeft className="h-5 w-5" />
           </button>
-          <button
-            onClick={() => setCurrentWeek(new Date())}
-            className="btn-primary"
-          >
-            This Week
-          </button>
+          <span className="text-sm text-gray-600">Week {currentWeek + 1}</span>
           <button
             onClick={() => navigateWeek(1)}
-            className="btn-secondary"
+            className="p-2 rounded-lg border border-gray-300 hover:bg-gray-50"
           >
-            Next Week
+            <ChevronRight className="h-5 w-5" />
           </button>
         </div>
       </div>
 
-      {/* Weekly Macro Summary */}
-      <div className="card mb-6">
-        <div className="flex items-center space-x-2 mb-4">
-          <Target className="h-5 w-5 text-burgundy-600" />
-          <h3 className="text-lg font-semibold text-gray-800">Weekly Nutrition Overview</h3>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-7 gap-4">
-          {weekDates.map((date, dayIndex) => {
-            const dateStr = getDateString(date);
-            const { totalCalories, totalProtein } = calculateDailyMacros(dateStr);
-            return (
-              <div key={dayIndex} className={`text-center p-3 rounded-lg ${
-                isToday(date) ? 'bg-burgundy-50 border border-burgundy-200' : 'bg-gray-50'
-              }`}>
-                <div className="text-sm font-medium text-gray-600 mb-2">
-                  {days[dayIndex].slice(0, 3)}
-                </div>
-                <div className="space-y-1">
-                  <div className="flex items-center justify-center space-x-1 text-orange-600">
-                    <Flame className="h-3 w-3" />
-                    <span className="text-sm font-semibold">{totalCalories || 0}</span>
-                  </div>
-                  <div className="flex items-center justify-center space-x-1 text-blue-600">
-                    <Zap className="h-3 w-3" />
-                    <span className="text-sm font-semibold">{totalProtein || 0}g</span>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-7">
+        {days.map((day, index) => {
+          const dayMeals = mealPlan[day] || [];
+          const macros = calculateDailyMacros(day);
 
-      {/* Week View */}
-      <div className="card p-0 overflow-hidden">
-        <div className="grid grid-cols-7 gap-px bg-cream-200">
-          {weekDates.map((date, dayIndex) => (
-            <div key={dayIndex} className="bg-white">
-              {/* Day Header */}
-              <div className={`p-4 text-center border-b border-cream-200 ${
-                isToday(date) ? 'bg-burgundy-50' : ''
-              }`}>
-                <div className="text-sm font-medium text-gray-500">
-                  {days[dayIndex]}
-                </div>
-                <div className={`text-lg font-semibold ${
-                  isToday(date) ? 'text-burgundy-700' : 'text-gray-800'
-                }`}>
-                  {date.getDate()}
-                </div>
-                <div className="text-xs text-gray-400">
-                  {date.toLocaleDateString('en-US', { month: 'short' })}
-                </div>
-                
-                {/* Daily Macro Summary */}
-                {(() => {
-                  const dateStr = getDateString(date);
-                  const { totalCalories, totalProtein } = calculateDailyMacros(dateStr);
-                  return (totalCalories > 0 || totalProtein > 0) && (
-                    <div className="mt-2 pt-2 border-t border-cream-200">
-                      <div className="flex justify-center space-x-3 text-xs">
-                        {totalCalories > 0 && (
-                          <div className="flex items-center space-x-1 text-orange-600">
-                            <Flame className="h-3 w-3" />
-                            <span className="font-medium">{totalCalories}</span>
-                          </div>
-                        )}
-                        {totalProtein > 0 && (
-                          <div className="flex items-center space-x-1 text-blue-600">
-                            <Zap className="h-3 w-3" />
-                            <span className="font-medium">{totalProtein}g</span>
-                          </div>
-                        )}
-                      </div>
+          return (
+            <div key={day} className="card">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-gray-800">{dayNames[index]}</h3>
+                <Calendar className="h-5 w-5 text-burgundy-600" />
+              </div>
+
+              {macros.calories > 0 && (
+                <div className="mb-4 p-3 bg-cream-50 rounded-lg">
+                  <div className="flex items-center justify-between text-sm">
+                    <div className="flex items-center space-x-1 text-orange-600">
+                      <Flame className="h-4 w-4" />
+                      <span className="font-medium">{macros.calories} cal</span>
                     </div>
-                  );
-                })()}
-              </div>
+                    <div className="flex items-center space-x-1 text-blue-600">
+                      <Zap className="h-4 w-4" />
+                      <span className="font-medium">{macros.protein.toFixed(1)}g protein</span>
+                    </div>
+                  </div>
+                </div>
+              )}
 
-              {/* Meal Slots */}
-              <div className="p-3 space-y-2 min-h-[300px]">
-                {slots.map((slot) => {
-                  const dateStr = getDateString(date);
-                  const meal = mealPlan[dateStr]?.[slot.id];
-                  
-                  return (
-                    <div
-                      key={slot.id}
-                      className={`p-3 rounded-lg border-2 border-dashed transition-colors ${
-                        meal
-                          ? 'border-burgundy-200 bg-burgundy-50'
-                          : 'border-cream-300 hover:border-burgundy-300 hover:bg-cream-50'
-                      }`}
-                    >
-                      <div className="flex items-center space-x-2 mb-2">
-                        <span className="text-lg">{slot.icon}</span>
-                        <span className="text-xs font-medium text-gray-600 uppercase">
-                          {slot.label}
-                        </span>
-                      </div>
-                      
-                      {meal ? (
-                        <div className="space-y-2">
-                          <div className="text-sm font-medium text-gray-800">
-                            {meal.title}
-                          </div>
-                          <div className="flex items-center space-x-1 text-xs text-gray-500">
-                            <Clock className="h-3 w-3" />
-                            <span>{meal.time}</span>
-                          </div>
-                          {(meal.calories || meal.protein) && (
-                            <div className="flex items-center space-x-3 text-xs">
-                              {meal.calories && (
-                                <div className="flex items-center space-x-1 text-orange-600">
-                                  <Flame className="h-3 w-3" />
-                                  <span>{meal.calories} cal</span>
-                                </div>
-                              )}
-                              {meal.protein && (
-                                <div className="flex items-center space-x-1 text-blue-600">
-                                  <Zap className="h-3 w-3" />
-                                  <span>{meal.protein}g</span>
-                                </div>
-                              )}
+              <div className="space-y-3">
+                {dayMeals.length === 0 ? (
+                  <div className="text-center py-8">
+                    <div className="text-gray-400 text-sm">No meals planned</div>
+                  </div>
+                ) : (
+                  dayMeals.map((meal) => (
+                    <div key={meal.id} className="p-3 bg-gray-50 rounded-lg">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <h4 className="font-medium text-gray-800 text-sm">{meal.recipe.title}</h4>
+                          <div className="flex items-center space-x-2 mt-1 text-xs text-gray-500">
+                            <div className="flex items-center space-x-1">
+                              <Clock className="h-3 w-3" />
+                              <span>{meal.recipe.minutes} min</span>
                             </div>
-                          )}
-                        </div>
-                      ) : (
-                        <button className="w-full text-left text-xs text-gray-400 hover:text-burgundy-600 transition-colors">
-                          <div className="flex items-center space-x-1">
-                            <Plus className="h-3 w-3" />
-                            <span>Add meal</span>
+                            <div className="flex items-center space-x-1">
+                              <Flame className="h-3 w-3" />
+                              <span>{meal.recipe.calories} cal</span>
+                            </div>
                           </div>
+                        </div>
+                        <button
+                          onClick={() => removeMeal(day, meal.id)}
+                          className="text-red-500 hover:text-red-700 p-1"
+                        >
+                          <Trash2 className="h-4 w-4" />
                         </button>
-                      )}
+                      </div>
                     </div>
-                  );
-                })}
+                  ))
+                )}
               </div>
             </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Quick Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="card text-center">
-          <ChefHat className="h-8 w-8 text-burgundy-600 mx-auto mb-3" />
-          <h3 className="font-semibold text-gray-800 mb-2">Add from Suggestions</h3>
-          <p className="text-sm text-gray-600 mb-4">
-            Choose from your personalized recipe suggestions
-          </p>
-          <button className="btn-primary w-full">
-            Browse Suggestions
-          </button>
-        </div>
-
-        <div className="card text-center">
-          <Calendar className="h-8 w-8 text-burgundy-600 mx-auto mb-3" />
-          <h3 className="font-semibold text-gray-800 mb-2">Quick Add</h3>
-          <p className="text-sm text-gray-600 mb-4">
-            Add meals manually to any day and time slot
-          </p>
-          <button className="btn-secondary w-full">
-            Add Manually
-          </button>
-        </div>
-
-        <div className="card text-center">
-          <Clock className="h-8 w-8 text-burgundy-600 mx-auto mb-3" />
-          <h3 className="font-semibold text-gray-800 mb-2">Generate Week</h3>
-          <p className="text-sm text-gray-600 mb-4">
-            Auto-generate a full week of meals
-          </p>
-          <button className="btn-secondary w-full">
-            Auto-Generate
-          </button>
-        </div>
+          );
+        })}
       </div>
     </div>
   );
