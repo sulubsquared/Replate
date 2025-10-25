@@ -134,76 +134,34 @@ app.delete('/meal-plan/:day/:mealId', (req, res) => {
   res.json({ success: true });
 });
 
-// get recipe suggestions
-app.post('/suggest', (req, res) => {
-  const { userId = 'demo-user-123' } = req.body;
-  
-  const recipes = [
-    {
-      id: '1',
-      title: 'Simple Chicken and Rice',
-      minutes: 30,
-      calories: 450,
-      protein: 35.5,
-      carbs: 45,
-      fat: 8,
-      instructions: '1. Season chicken with salt and pepper. 2. Cook chicken in olive oil until golden. 3. Add rice and water, simmer until cooked. 4. Serve hot.',
-      photo_url: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=500',
-      coverage: 0.8,
-      availableIngredients: 4,
-      totalIngredients: 5,
-      missingIngredients: [{ name: 'Rice', needed: 1.5, available: 0, missing: 1.5, unit: 'cups' }]
-    },
-    {
-      id: '2',
-      title: 'Scrambled Eggs',
-      minutes: 10,
-      calories: 200,
-      protein: 15.0,
-      carbs: 2,
-      fat: 14,
-      instructions: '1. Beat eggs with milk, salt, and pepper. 2. Heat butter in pan. 3. Add eggs and scramble gently. 4. Serve immediately.',
-      photo_url: 'https://images.unsplash.com/photo-1525351484163-7529414344d8?w=500',
-      coverage: 0.6,
-      availableIngredients: 3,
-      totalIngredients: 5,
-      missingIngredients: [
-        { name: 'Butter', needed: 1, available: 0, missing: 1, unit: 'tbsp' },
-        { name: 'Milk', needed: 0.25, available: 0, missing: 0.25, unit: 'cups' }
-      ]
-    }
-  ];
-  
-  res.json({ recipes, message: "Fuel up quick — no grocery run needed!", pantryCount: pantry.size });
-});
-
-// ai recipe search
-app.post('/ai-suggest', async (req, res) => {
+// get recipe suggestions based on pantry
+app.post('/suggest', async (req, res) => {
   try {
-    const { userId = 'demo-user-123', query } = req.body;
+    const { userId = 'demo-user-123' } = req.body;
     
-    if (!query) {
-      return res.status(400).json({ error: 'Search query required' });
-    }
-
-    // try gemini ai first
+    // get current pantry ingredients
+    const pantryIngredients = Array.from(pantry.values()).map(item => item.ingredients.name.toLowerCase());
+    
+    // try gemini ai first for smart suggestions
     if (GEMINI_API_KEY !== 'demo-key') {
       try {
         const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
-        const prompt = `Create 3 ${query} recipes with specific ingredients. Return JSON:
+        const prompt = `Based on these pantry ingredients: ${pantryIngredients.join(', ')}, create 5 specific recipes that use these ingredients. Each recipe should be detailed with specific quantities and instructions. Return JSON:
         {
           "recipes": [
             {
-              "title": "Recipe Name",
-              "minutes": 30,
+              "title": "Specific Recipe Name",
+              "minutes": 25,
               "calories": 400,
               "protein": 25,
               "carbs": 35,
               "fat": 15,
-              "instructions": "Step by step instructions",
+              "instructions": "Detailed step-by-step instructions",
               "photo_url": "https://images.unsplash.com/photo-1234567890?w=500",
+              "availableIngredients": 3,
+              "totalIngredients": 5,
               "missingIngredients": [
-                {"name": "Ingredient Name", "needed": 2, "available": 0, "missing": 2, "unit": "cups"}
+                {"name": "Missing Ingredient", "needed": 2, "available": 0, "missing": 2, "unit": "cups"}
               ]
             }
           ]
@@ -224,39 +182,130 @@ app.post('/ai-suggest', async (req, res) => {
         const jsonMatch = text.match(/\{[\s\S]*\}/);
         if (jsonMatch) {
           const data = JSON.parse(jsonMatch[0]);
-          return res.json({ recipes: data.recipes, message: `Found ${data.recipes.length} ${query} recipes!` });
+          return res.json({ 
+            recipes: data.recipes, 
+            message: `Found ${data.recipes.length} recipes using your pantry ingredients!`, 
+            pantryCount: pantry.size 
+          });
         }
       } catch (error) {
         console.log('Gemini AI failed, using fallback:', error.message);
       }
     }
 
-    // fallback to basic recipes
-    const fallbackRecipes = [
-      {
-        id: `fallback-1-${Date.now()}`,
-        title: `Simple ${query.charAt(0).toUpperCase() + query.slice(1)} Recipe`,
-        minutes: 25,
-        calories: 350,
-        protein: 20,
-        carbs: 30,
-        fat: 12,
-        instructions: `1. Prepare ingredients for ${query}. 2. Follow traditional cooking method. 3. Season to taste. 4. Serve hot.`,
-        photo_url: `https://images.unsplash.com/photo-${1500000000 + Math.floor(Math.random() * 1000)}?w=500`,
-        missingIngredients: [
-          { name: 'Main Ingredient', needed: 2, available: 0, missing: 2, unit: 'cups' },
-          { name: 'Seasoning', needed: 1, available: 0, missing: 1, unit: 'tsp' }
-        ]
-      }
-    ];
-
-    res.json({ recipes: fallbackRecipes, message: `Found ${query} recipes!` });
+    // fallback: generate recipes based on pantry ingredients
+    const recipes = generateRecipesFromPantry(pantryIngredients);
+    
+    res.json({ 
+      recipes, 
+      message: `Found ${recipes.length} recipes using your pantry ingredients!`, 
+      pantryCount: pantry.size 
+    });
 
   } catch (error) {
-    console.error('Error in /ai-suggest endpoint:', error);
+    console.error('Error in /suggest endpoint:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
+
+// helper function to generate recipes based on pantry
+function generateRecipesFromPantry(pantryIngredients) {
+  const recipes = [];
+  
+  // chicken-based recipes
+  if (pantryIngredients.includes('chicken breast')) {
+    recipes.push({
+      id: 'chicken-1',
+      title: 'Garlic Chicken with Onions',
+      minutes: 25,
+      calories: 320,
+      protein: 42,
+      carbs: 8,
+      fat: 12,
+      instructions: '1. Season chicken with salt and pepper. 2. Heat olive oil in pan. 3. Cook chicken until golden. 4. Add sliced onions and minced garlic. 5. Cook until onions are soft. 6. Serve hot.',
+      photo_url: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=500',
+      availableIngredients: 3,
+      totalIngredients: 4,
+      missingIngredients: []
+    });
+  }
+  
+  // egg-based recipes
+  if (pantryIngredients.includes('eggs')) {
+    recipes.push({
+      id: 'egg-1',
+      title: 'Scrambled Eggs with Garlic',
+      minutes: 8,
+      calories: 180,
+      protein: 18,
+      carbs: 2,
+      fat: 12,
+      instructions: '1. Beat eggs with salt and pepper. 2. Heat olive oil in pan. 3. Add minced garlic and cook 30 seconds. 4. Add eggs and scramble gently. 5. Serve immediately.',
+      photo_url: 'https://images.unsplash.com/photo-1525351484163-7529414344d8?w=500',
+      availableIngredients: 3,
+      totalIngredients: 3,
+      missingIngredients: []
+    });
+  }
+  
+  // onion and garlic recipes
+  if (pantryIngredients.includes('onion') && pantryIngredients.includes('garlic')) {
+    recipes.push({
+      id: 'onion-garlic-1',
+      title: 'Caramelized Onion and Garlic Rice',
+      minutes: 20,
+      calories: 280,
+      protein: 6,
+      carbs: 55,
+      fat: 4,
+      instructions: '1. Slice onions thinly. 2. Heat olive oil in pan. 3. Add onions and cook slowly until caramelized. 4. Add minced garlic. 5. Add rice and water. 6. Simmer until rice is cooked.',
+      photo_url: 'https://images.unsplash.com/photo-1603133872878-684f208fb84b?w=500',
+      availableIngredients: 3,
+      totalIngredients: 3,
+      missingIngredients: []
+    });
+  }
+  
+  // if we have chicken, eggs, onion, garlic - make a complete meal
+  if (pantryIngredients.includes('chicken breast') && pantryIngredients.includes('eggs') && 
+      pantryIngredients.includes('onion') && pantryIngredients.includes('garlic')) {
+    recipes.push({
+      id: 'complete-1',
+      title: 'Chicken and Egg Fried Rice',
+      minutes: 15,
+      calories: 450,
+      protein: 35,
+      carbs: 25,
+      fat: 20,
+      instructions: '1. Dice chicken and season. 2. Beat eggs. 3. Heat oil in wok. 4. Cook chicken until done. 5. Add onions and garlic. 6. Push aside, scramble eggs. 7. Add rice and mix everything. 8. Season with salt and pepper.',
+      photo_url: 'https://images.unsplash.com/photo-1603133872878-684f208fb84b?w=500',
+      availableIngredients: 4,
+      totalIngredients: 4,
+      missingIngredients: []
+    });
+  }
+  
+  // if we have eggs and onion
+  if (pantryIngredients.includes('eggs') && pantryIngredients.includes('onion')) {
+    recipes.push({
+      id: 'egg-onion-1',
+      title: 'Onion Omelette',
+      minutes: 10,
+      calories: 220,
+      protein: 20,
+      carbs: 6,
+      fat: 14,
+      instructions: '1. Beat eggs with salt and pepper. 2. Heat olive oil in pan. 3. Add diced onions and cook until soft. 4. Pour eggs over onions. 5. Cook until set, fold in half. 6. Serve hot.',
+      photo_url: 'https://images.unsplash.com/photo-1525351484163-7529414344d8?w=500',
+      availableIngredients: 3,
+      totalIngredients: 3,
+      missingIngredients: []
+    });
+  }
+  
+  return recipes;
+}
+
 
 // start server
 app.listen(PORT, () => {
