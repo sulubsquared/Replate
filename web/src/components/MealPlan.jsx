@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Calendar, Plus, Clock, ChefHat } from 'lucide-react';
+import { Calendar, Plus, Clock, ChefHat, Flame, Zap, Target } from 'lucide-react';
 
 const MealPlan = ({ userId }) => {
   const [mealPlan, setMealPlan] = useState({});
@@ -34,19 +34,39 @@ const MealPlan = ({ userId }) => {
 
       // For now, we'll create a mock meal plan since we don't have the full API
       // In a real implementation, you'd fetch from your meal_plan table
-      const mockMealPlan = {};
-      for (let i = 0; i < 7; i++) {
-        const date = new Date(startOfWeek);
-        date.setDate(startOfWeek.getDate() + i);
-        const dateStr = date.toISOString().split('T')[0];
-        
-        mockMealPlan[dateStr] = {
-          breakfast: i === 1 ? { title: 'Scrambled Eggs', time: '8:00 AM' } : null,
-          lunch: i === 2 ? { title: 'Simple Chicken and Rice', time: '12:30 PM' } : null,
-          dinner: i === 3 ? { title: 'Pasta with Tomato Sauce', time: '7:00 PM' } : null,
-          snack: i === 4 ? { title: 'Cheesy Baked Potato', time: '3:00 PM' } : null,
-        };
-      }
+    const mockMealPlan = {};
+    for (let i = 0; i < 7; i++) {
+      const date = new Date(startOfWeek);
+      date.setDate(startOfWeek.getDate() + i);
+      const dateStr = date.toISOString().split('T')[0];
+      
+      mockMealPlan[dateStr] = {
+        breakfast: i === 1 ? { 
+          title: 'Scrambled Eggs', 
+          time: '8:00 AM',
+          calories: 200,
+          protein: 15.0
+        } : null,
+        lunch: i === 2 ? { 
+          title: 'Simple Chicken and Rice', 
+          time: '12:30 PM',
+          calories: 450,
+          protein: 35.5
+        } : null,
+        dinner: i === 3 ? { 
+          title: 'Pasta with Tomato Sauce', 
+          time: '7:00 PM',
+          calories: 380,
+          protein: 12.5
+        } : null,
+        snack: i === 4 ? { 
+          title: 'Cheesy Baked Potato', 
+          time: '3:00 PM',
+          calories: 320,
+          protein: 8.5
+        } : null,
+      };
+    }
       
       setMealPlan(mockMealPlan);
     } catch (error) {
@@ -82,6 +102,19 @@ const MealPlan = ({ userId }) => {
   const isToday = (date) => {
     const today = new Date();
     return date.toDateString() === today.toDateString();
+  };
+
+  const calculateDailyMacros = (dateStr) => {
+    const dayMeals = mealPlan[dateStr] || {};
+    let totalCalories = 0;
+    let totalProtein = 0;
+    
+    Object.values(dayMeals).forEach(meal => {
+      if (meal && meal.calories) totalCalories += meal.calories;
+      if (meal && meal.protein) totalProtein += meal.protein;
+    });
+    
+    return { totalCalories, totalProtein };
   };
 
   if (loading) {
@@ -125,6 +158,39 @@ const MealPlan = ({ userId }) => {
         </div>
       </div>
 
+      {/* Weekly Macro Summary */}
+      <div className="card mb-6">
+        <div className="flex items-center space-x-2 mb-4">
+          <Target className="h-5 w-5 text-burgundy-600" />
+          <h3 className="text-lg font-semibold text-gray-800">Weekly Nutrition Overview</h3>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-7 gap-4">
+          {weekDates.map((date, dayIndex) => {
+            const dateStr = getDateString(date);
+            const { totalCalories, totalProtein } = calculateDailyMacros(dateStr);
+            return (
+              <div key={dayIndex} className={`text-center p-3 rounded-lg ${
+                isToday(date) ? 'bg-burgundy-50 border border-burgundy-200' : 'bg-gray-50'
+              }`}>
+                <div className="text-sm font-medium text-gray-600 mb-2">
+                  {days[dayIndex].slice(0, 3)}
+                </div>
+                <div className="space-y-1">
+                  <div className="flex items-center justify-center space-x-1 text-orange-600">
+                    <Flame className="h-3 w-3" />
+                    <span className="text-sm font-semibold">{totalCalories || 0}</span>
+                  </div>
+                  <div className="flex items-center justify-center space-x-1 text-blue-600">
+                    <Zap className="h-3 w-3" />
+                    <span className="text-sm font-semibold">{totalProtein || 0}g</span>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
       {/* Week View */}
       <div className="card p-0 overflow-hidden">
         <div className="grid grid-cols-7 gap-px bg-cream-200">
@@ -145,6 +211,30 @@ const MealPlan = ({ userId }) => {
                 <div className="text-xs text-gray-400">
                   {date.toLocaleDateString('en-US', { month: 'short' })}
                 </div>
+                
+                {/* Daily Macro Summary */}
+                {(() => {
+                  const dateStr = getDateString(date);
+                  const { totalCalories, totalProtein } = calculateDailyMacros(dateStr);
+                  return (totalCalories > 0 || totalProtein > 0) && (
+                    <div className="mt-2 pt-2 border-t border-cream-200">
+                      <div className="flex justify-center space-x-3 text-xs">
+                        {totalCalories > 0 && (
+                          <div className="flex items-center space-x-1 text-orange-600">
+                            <Flame className="h-3 w-3" />
+                            <span className="font-medium">{totalCalories}</span>
+                          </div>
+                        )}
+                        {totalProtein > 0 && (
+                          <div className="flex items-center space-x-1 text-blue-600">
+                            <Zap className="h-3 w-3" />
+                            <span className="font-medium">{totalProtein}g</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })()}
               </div>
 
               {/* Meal Slots */}
@@ -170,7 +260,7 @@ const MealPlan = ({ userId }) => {
                       </div>
                       
                       {meal ? (
-                        <div className="space-y-1">
+                        <div className="space-y-2">
                           <div className="text-sm font-medium text-gray-800">
                             {meal.title}
                           </div>
@@ -178,6 +268,22 @@ const MealPlan = ({ userId }) => {
                             <Clock className="h-3 w-3" />
                             <span>{meal.time}</span>
                           </div>
+                          {(meal.calories || meal.protein) && (
+                            <div className="flex items-center space-x-3 text-xs">
+                              {meal.calories && (
+                                <div className="flex items-center space-x-1 text-orange-600">
+                                  <Flame className="h-3 w-3" />
+                                  <span>{meal.calories} cal</span>
+                                </div>
+                              )}
+                              {meal.protein && (
+                                <div className="flex items-center space-x-1 text-blue-600">
+                                  <Zap className="h-3 w-3" />
+                                  <span>{meal.protein}g</span>
+                                </div>
+                              )}
+                            </div>
+                          )}
                         </div>
                       ) : (
                         <button className="w-full text-left text-xs text-gray-400 hover:text-burgundy-600 transition-colors">

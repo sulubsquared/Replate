@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, Trash2, Package } from 'lucide-react';
+import { Plus, Trash2, Package, Flame, Zap } from 'lucide-react';
 
 const Pantry = ({ userId }) => {
   const [pantry, setPantry] = useState([]);
@@ -175,30 +175,65 @@ const Pantry = ({ userId }) => {
             <h3 className="text-lg font-semibold text-gray-800 mb-4">
               Pantry Items ({pantry.length})
             </h3>
-            {pantry.map((item) => (
-              <div
-                key={item.id}
-                className="flex items-center justify-between p-4 bg-cream-50 rounded-xl border border-cream-200"
-              >
-                <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-burgundy-100 rounded-lg flex items-center justify-center">
-                    <Package className="h-5 w-5 text-burgundy-600" />
-                  </div>
-                  <div>
-                    <h4 className="font-medium text-gray-800">{item.ingredients.name}</h4>
-                    <p className="text-sm text-gray-500">
-                      {item.qty} {item.ingredients.unit}
-                    </p>
-                  </div>
-                </div>
-                <button
-                  onClick={() => handleRemoveIngredient(item.ingredients.id)}
-                  className="text-red-500 hover:text-red-700 p-2 rounded-lg hover:bg-red-50 transition-colors"
+            {pantry.map((item) => {
+              // Mock macro data for ingredients (in a real app, this would come from the database)
+              const getIngredientMacros = (ingredientName) => {
+                const macroData = {
+                  'Chicken Breast': { calories: 165, protein: 31 },
+                  'Eggs': { calories: 70, protein: 6 },
+                  'Onion': { calories: 40, protein: 1 },
+                  'Garlic': { calories: 4, protein: 0.2 },
+                  'Rice': { calories: 130, protein: 2.7 },
+                  'Tomato': { calories: 18, protein: 0.9 },
+                  'Olive Oil': { calories: 120, protein: 0 },
+                  'Salt': { calories: 0, protein: 0 },
+                  'Black Pepper': { calories: 6, protein: 0.3 },
+                  'Milk': { calories: 42, protein: 3.4 }
+                };
+                return macroData[ingredientName] || { calories: 0, protein: 0 };
+              };
+
+              const macros = getIngredientMacros(item.ingredients.name);
+              const totalCalories = Math.round(macros.calories * item.qty);
+              const totalProtein = Math.round(macros.protein * item.qty * 10) / 10;
+
+              return (
+                <div
+                  key={item.id}
+                  className="flex items-center justify-between p-4 bg-cream-50 rounded-xl border border-cream-200"
                 >
-                  <Trash2 className="h-5 w-5" />
-                </button>
-              </div>
-            ))}
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 bg-burgundy-100 rounded-lg flex items-center justify-center">
+                      <Package className="h-5 w-5 text-burgundy-600" />
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="font-medium text-gray-800">{item.ingredients.name}</h4>
+                      <p className="text-sm text-gray-500 mb-2">
+                        {item.qty} {item.ingredients.unit}
+                      </p>
+                      {(totalCalories > 0 || totalProtein > 0) && (
+                        <div className="flex items-center space-x-4 text-xs">
+                          <div className="flex items-center space-x-1 text-orange-600">
+                            <Flame className="h-3 w-3" />
+                            <span className="font-medium">{totalCalories} cal</span>
+                          </div>
+                          <div className="flex items-center space-x-1 text-blue-600">
+                            <Zap className="h-3 w-3" />
+                            <span className="font-medium">{totalProtein}g</span>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => handleRemoveIngredient(item.ingredients.id)}
+                    className="text-red-500 hover:text-red-700 p-2 rounded-lg hover:bg-red-50 transition-colors"
+                  >
+                    <Trash2 className="h-5 w-5" />
+                  </button>
+                </div>
+              );
+            })}
           </div>
         )}
       </div>

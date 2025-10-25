@@ -127,21 +127,66 @@ const Suggestions = ({ userId }) => {
                 </p>
 
                 {/* Recipe Stats */}
-                <div className="flex items-center space-x-4 text-sm text-gray-500">
-                  <div className="flex items-center space-x-1">
-                    <Clock className="h-4 w-4" />
-                    <span>{recipe.minutes} min</span>
-                  </div>
-                  {recipe.calories && (
+                <div className="space-y-2">
+                  <div className="flex items-center space-x-4 text-sm text-gray-500">
                     <div className="flex items-center space-x-1">
-                      <Flame className="h-4 w-4" />
-                      <span>{recipe.calories} cal</span>
+                      <Clock className="h-4 w-4" />
+                      <span>{recipe.minutes} min</span>
                     </div>
-                  )}
-                  {recipe.protein && (
-                    <div className="flex items-center space-x-1">
-                      <Zap className="h-4 w-4" />
-                      <span>{recipe.protein}g protein</span>
+                    {recipe.calories && (
+                      <div className="flex items-center space-x-1">
+                        <Flame className="h-4 w-4" />
+                        <span>{recipe.calories} cal</span>
+                      </div>
+                    )}
+                    {recipe.protein && (
+                      <div className="flex items-center space-x-1">
+                        <Zap className="h-4 w-4" />
+                        <span>{recipe.protein}g protein</span>
+                      </div>
+                    )}
+                  </div>
+                  
+                  {/* Macro Breakdown */}
+                  {(recipe.calories || recipe.protein) && (
+                    <div className="bg-cream-100 rounded-lg p-3">
+                      <h4 className="text-xs font-semibold text-gray-700 mb-2 uppercase tracking-wide">Nutritional Info</h4>
+                      <div className="grid grid-cols-2 gap-3 text-sm">
+                        {recipe.calories && (
+                          <div className="flex items-center justify-between">
+                            <span className="text-gray-600">Calories:</span>
+                            <span className="font-semibold text-burgundy-600">{recipe.calories}</span>
+                          </div>
+                        )}
+                        {recipe.protein && (
+                          <div className="flex items-center justify-between">
+                            <span className="text-gray-600">Protein:</span>
+                            <span className="font-semibold text-burgundy-600">{recipe.protein}g</span>
+                          </div>
+                        )}
+                        {recipe.carbs && (
+                          <div className="flex items-center justify-between">
+                            <span className="text-gray-600">Carbs:</span>
+                            <span className="font-semibold text-green-600">{recipe.carbs}g</span>
+                          </div>
+                        )}
+                        {recipe.fat && (
+                          <div className="flex items-center justify-between">
+                            <span className="text-gray-600">Fat:</span>
+                            <span className="font-semibold text-yellow-600">{recipe.fat}g</span>
+                          </div>
+                        )}
+                        {recipe.calories && recipe.protein && (
+                          <div className="col-span-2 pt-2 border-t border-cream-200">
+                            <div className="flex items-center justify-between text-xs text-gray-500">
+                              <span>Protein per 100 cal:</span>
+                              <span className="font-medium">
+                                {Math.round((recipe.protein / recipe.calories) * 100 * 10) / 10}g
+                              </span>
+                            </div>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   )}
                 </div>

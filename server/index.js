@@ -57,6 +57,8 @@ const mockRecipes = [
     minutes: 30,
     calories: 450,
     protein: 35.5,
+    carbs: 45,
+    fat: 8,
     instructions: '1. Season chicken with salt and pepper. 2. Cook chicken in olive oil until golden. 3. Add rice and water, simmer until cooked. 4. Serve hot.',
     photo_url: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=500',
     coverage: 0.8,
@@ -70,6 +72,8 @@ const mockRecipes = [
     minutes: 10,
     calories: 200,
     protein: 15.0,
+    carbs: 2,
+    fat: 14,
     instructions: '1. Beat eggs with milk, salt, and pepper. 2. Heat butter in pan. 3. Add eggs and scramble gently. 4. Serve immediately.',
     photo_url: 'https://images.unsplash.com/photo-1525351484163-7529414344d8?w=500',
     coverage: 0.6,
@@ -78,6 +82,62 @@ const mockRecipes = [
     missingIngredients: [
       { name: 'Butter', needed: 1, available: 0, missing: 1, unit: 'tbsp' },
       { name: 'Milk', needed: 0.25, available: 0, missing: 0.25, unit: 'cups' }
+    ]
+  },
+  {
+    id: '3',
+    title: 'Pasta with Tomato Sauce',
+    minutes: 25,
+    calories: 380,
+    protein: 12.5,
+    carbs: 65,
+    fat: 8,
+    instructions: '1. Boil pasta according to package directions. 2. Sauté onion and garlic in olive oil. 3. Add tomatoes and simmer. 4. Toss with pasta and serve.',
+    photo_url: 'https://images.unsplash.com/photo-1621996346565-e3dbc353d2e5?w=500',
+    coverage: 0.4,
+    availableIngredients: 2,
+    totalIngredients: 5,
+    missingIngredients: [
+      { name: 'Pasta', needed: 2, available: 0, missing: 2, unit: 'cups' },
+      { name: 'Tomato', needed: 3, available: 0, missing: 3, unit: 'pieces' }
+    ]
+  },
+  {
+    id: '4',
+    title: 'Beef Stir Fry',
+    minutes: 20,
+    calories: 420,
+    protein: 28.0,
+    carbs: 15,
+    fat: 25,
+    instructions: '1. Heat oil in wok. 2. Cook beef until browned. 3. Add vegetables and stir fry. 4. Season with salt and pepper. 5. Serve over rice.',
+    photo_url: 'https://images.unsplash.com/photo-1603133872878-684f208fb84b?w=500',
+    coverage: 0.3,
+    availableIngredients: 1,
+    totalIngredients: 6,
+    missingIngredients: [
+      { name: 'Ground Beef', needed: 1, available: 0, missing: 1, unit: 'lbs' },
+      { name: 'Bell Pepper', needed: 2, available: 0, missing: 2, unit: 'pieces' },
+      { name: 'Carrot', needed: 2, available: 0, missing: 2, unit: 'pieces' }
+    ]
+  },
+  {
+    id: '5',
+    title: 'Cheesy Baked Potato',
+    minutes: 45,
+    calories: 320,
+    protein: 8.5,
+    carbs: 35,
+    fat: 16,
+    instructions: '1. Bake potatoes until tender. 2. Cut open and fluff with fork. 3. Add butter, cheese, and seasonings. 4. Bake until cheese melts.',
+    photo_url: 'https://images.unsplash.com/photo-1512058564366-18510be2db19?w=500',
+    coverage: 0.2,
+    availableIngredients: 1,
+    totalIngredients: 5,
+    missingIngredients: [
+      { name: 'Potato', needed: 4, available: 0, missing: 4, unit: 'pieces' },
+      { name: 'Cheese', needed: 1, available: 0, missing: 1, unit: 'cups' },
+      { name: 'Butter', needed: 2, available: 0, missing: 2, unit: 'tbsp' }
     ]
   }
 ];
