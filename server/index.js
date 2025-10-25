@@ -14,10 +14,10 @@ const PORT = process.env.PORT || 3001;
 app.use(cors());
 app.use(express.json());
 
-// Initialize Supabase client with service role key
+// Initialize Supabase client with service role key (demo mode)
 const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY,
+  process.env.SUPABASE_URL || 'https://demo.supabase.co',
+  process.env.SUPABASE_SERVICE_ROLE_KEY || 'demo-key',
   {
     auth: {
       autoRefreshToken: false,
@@ -26,9 +26,9 @@ const supabase = createClient(
   }
 );
 
-// Initialize OpenAI client
+// Initialize OpenAI client (demo mode)
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
+  apiKey: process.env.OPENAI_API_KEY || 'demo-key',
 });
 
 // Health check endpoint
@@ -36,187 +36,69 @@ app.get('/health', (req, res) => {
   res.json({ status: 'OK', message: 'Replate API is running' });
 });
 
+// Mock data for demo mode
+const mockIngredients = [
+  { id: '1', name: 'Chicken Breast', unit: 'lbs' },
+  { id: '2', name: 'Rice', unit: 'cups' },
+  { id: '3', name: 'Onion', unit: 'pieces' },
+  { id: '4', name: 'Garlic', unit: 'cloves' },
+  { id: '5', name: 'Tomato', unit: 'pieces' },
+  { id: '6', name: 'Olive Oil', unit: 'tbsp' },
+  { id: '7', name: 'Salt', unit: 'tsp' },
+  { id: '8', name: 'Black Pepper', unit: 'tsp' },
+  { id: '9', name: 'Eggs', unit: 'pieces' },
+  { id: '10', name: 'Milk', unit: 'cups' }
+];
+
+const mockRecipes = [
+  {
+    id: '1',
+    title: 'Simple Chicken and Rice',
+    minutes: 30,
+    calories: 450,
+    protein: 35.5,
+    instructions: '1. Season chicken with salt and pepper. 2. Cook chicken in olive oil until golden. 3. Add rice and water, simmer until cooked. 4. Serve hot.',
+    photo_url: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=500',
+    coverage: 0.8,
+    availableIngredients: 4,
+    totalIngredients: 5,
+    missingIngredients: [{ name: 'Rice', needed: 1.5, available: 0, missing: 1.5, unit: 'cups' }]
+  },
+  {
+    id: '2',
+    title: 'Scrambled Eggs',
+    minutes: 10,
+    calories: 200,
+    protein: 15.0,
+    instructions: '1. Beat eggs with milk, salt, and pepper. 2. Heat butter in pan. 3. Add eggs and scramble gently. 4. Serve immediately.',
+    photo_url: 'https://images.unsplash.com/photo-1525351484163-7529414344d8?w=500',
+    coverage: 0.6,
+    availableIngredients: 3,
+    totalIngredients: 5,
+    missingIngredients: [
+      { name: 'Butter', needed: 1, available: 0, missing: 1, unit: 'tbsp' },
+      { name: 'Milk', needed: 0.25, available: 0, missing: 0.25, unit: 'cups' }
+    ]
+  }
+];
+
+const mockPantry = [
+  { id: '1', qty: 2, ingredients: { id: '1', name: 'Chicken Breast', unit: 'lbs' } },
+  { id: '2', qty: 1, ingredients: { id: '3', name: 'Onion', unit: 'pieces' } },
+  { id: '3', qty: 3, ingredients: { id: '4', name: 'Garlic', unit: 'cloves' } },
+  { id: '4', qty: 6, ingredients: { id: '9', name: 'Eggs', unit: 'pieces' } }
+];
+
 // Get recipe suggestions based on user's pantry and preferences
 app.post('/suggest', async (req, res) => {
   try {
-    const { userId } = req.body;
+    const { userId = 'demo-user-123' } = req.body;
 
-    if (!userId) {
-      return res.status(400).json({ error: 'User ID is required' });
-    }
-
-    // Fetch user's pantry
-    const { data: pantry, error: pantryError } = await supabase
-      .from('user_pantry')
-      .select(`
-        qty,
-        ingredients (
-          id,
-          name,
-          unit
-        )
-      `)
-      .eq('user_id', userId);
-
-    if (pantryError) {
-      console.error('Error fetching pantry:', pantryError);
-      return res.status(500).json({ error: 'Failed to fetch pantry' });
-    }
-
-    // Fetch user preferences
-    const { data: preferences, error: prefsError } = await supabase
-      .from('preferences')
-      .select('*')
-      .eq('user_id', userId)
-      .single();
-
-    if (prefsError && prefsError.code !== 'PGRST116') {
-      console.error('Error fetching preferences:', prefsError);
-      return res.status(500).json({ error: 'Failed to fetch preferences' });
-    }
-
-    // Fetch all recipes with their ingredients
-    const { data: recipes, error: recipesError } = await supabase
-      .from('recipes')
-      .select(`
-        id,
-        title,
-        minutes,
-        calories,
-        protein,
-        instructions,
-        photo_url,
-        recipe_ingredients (
-          qty,
-          unit,
-          ingredients (
-            id,
-            name,
-            unit
-          )
-        )
-      `);
-
-    if (recipesError) {
-      console.error('Error fetching recipes:', recipesError);
-      return res.status(500).json({ error: 'Failed to fetch recipes' });
-    }
-
-    // Create pantry map for quick lookup
-    const pantryMap = new Map();
-    pantry.forEach(item => {
-      pantryMap.set(item.ingredients.id, {
-        qty: item.qty,
-        name: item.ingredients.name,
-        unit: item.ingredients.unit
-      });
-    });
-
-    // Score recipes based on ingredient coverage and preferences
-    const scoredRecipes = recipes.map(recipe => {
-      let score = 0;
-      let totalIngredients = recipe.recipe_ingredients.length;
-      let availableIngredients = 0;
-      let missingIngredients = [];
-
-      // Check ingredient availability
-      recipe.recipe_ingredients.forEach(recipeIngredient => {
-        const pantryItem = pantryMap.get(recipeIngredient.ingredients.id);
-        if (pantryItem && pantryItem.qty >= recipeIngredient.qty) {
-          availableIngredients++;
-          score += 1; // Base score for having the ingredient
-        } else {
-          missingIngredients.push({
-            name: recipeIngredient.ingredients.name,
-            needed: recipeIngredient.qty,
-            unit: recipeIngredient.unit,
-            available: pantryItem ? pantryItem.qty : 0
-          });
-        }
-      });
-
-      // Calculate coverage percentage
-      const coverage = totalIngredients > 0 ? availableIngredients / totalIngredients : 0;
-      score += coverage * 10; // Bonus for higher coverage
-
-      // Apply preference filters
-      if (preferences) {
-        // Diet filter
-        if (preferences.diet && preferences.diet !== 'none') {
-          // Simple diet matching (can be enhanced)
-          if (preferences.diet === 'vegetarian' && recipe.title.toLowerCase().includes('chicken')) {
-            score -= 5;
-          }
-        }
-
-        // Time filter
-        if (preferences.max_minutes && recipe.minutes > preferences.max_minutes) {
-          score -= 3;
-        }
-
-        // Protein filter
-        if (preferences.target_protein && recipe.protein) {
-          const proteinDiff = Math.abs(recipe.protein - preferences.target_protein);
-          score -= proteinDiff * 0.1;
-        }
-
-        // Dislikes filter
-        if (preferences.dislikes && preferences.dislikes.length > 0) {
-          const hasDislikedIngredient = recipe.recipe_ingredients.some(ri => 
-            preferences.dislikes.some(dislike => 
-              ri.ingredients.name.toLowerCase().includes(dislike.toLowerCase())
-            )
-          );
-          if (hasDislikedIngredient) {
-            score -= 5;
-          }
-        }
-      }
-
-      return {
-        ...recipe,
-        score,
-        coverage,
-        availableIngredients,
-        totalIngredients,
-        missingIngredients
-      };
-    });
-
-    // Sort by score (highest first) and take top 5
-    const topRecipes = scoredRecipes
-      .sort((a, b) => b.score - a.score)
-      .slice(0, 5);
-
-    // AI-powered re-ranking and motivational message
-    let aiMessage = "Fuel up quick — no grocery run needed!";
-    
-    if (process.env.OPENAI_API_KEY) {
-      try {
-        const prompt = `You are a helpful meal planning assistant. The user has these ingredients in their pantry: ${pantry.map(p => `${p.ingredients.name} (${p.qty} ${p.ingredients.unit})`).join(', ')}. 
-
-The top recipe suggestions are: ${topRecipes.map((r, i) => `${i + 1}. ${r.title} (${r.coverage * 100}% pantry coverage)`).join(', ')}.
-
-Generate a short, motivational message (max 50 characters) to encourage the user to cook with what they have. Make it warm and encouraging.`;
-
-        const completion = await openai.chat.completions.create({
-          model: "gpt-3.5-turbo",
-          messages: [{ role: "user", content: prompt }],
-          max_tokens: 50,
-          temperature: 0.7,
-        });
-
-        aiMessage = completion.choices[0].message.content.trim();
-      } catch (aiError) {
-        console.error('AI integration error:', aiError);
-        // Fall back to default message
-      }
-    }
-
+    // Return mock data for demo
     res.json({
-      recipes: topRecipes,
-      message: aiMessage,
-      pantryCount: pantry.length
+      recipes: mockRecipes,
+      message: "Fuel up quick — no grocery run needed!",
+      pantryCount: mockPantry.length
     });
 
   } catch (error) {
@@ -228,10 +110,10 @@ Generate a short, motivational message (max 50 characters) to encourage the user
 // Get grocery list for missing ingredients from a recipe
 app.post('/grocery', async (req, res) => {
   try {
-    const { userId, recipeId } = req.body;
+    const { userId = 'demo-user-123', recipeId } = req.body;
 
-    if (!userId || !recipeId) {
-      return res.status(400).json({ error: 'User ID and Recipe ID are required' });
+    if (!recipeId) {
+      return res.status(400).json({ error: 'Recipe ID is required' });
     }
 
     // Fetch user's pantry
@@ -308,29 +190,10 @@ app.post('/grocery', async (req, res) => {
 // Get user's pantry
 app.get('/pantry/:userId', async (req, res) => {
   try {
-    const { userId } = req.params;
+    const { userId = 'demo-user-123' } = req.params;
 
-    const { data: pantry, error } = await supabase
-      .from('user_pantry')
-      .select(`
-        id,
-        qty,
-        created_at,
-        ingredients (
-          id,
-          name,
-          unit
-        )
-      `)
-      .eq('user_id', userId)
-      .order('created_at', { ascending: false });
-
-    if (error) {
-      console.error('Error fetching pantry:', error);
-      return res.status(500).json({ error: 'Failed to fetch pantry' });
-    }
-
-    res.json(pantry);
+    // Return mock pantry data
+    res.json(mockPantry);
   } catch (error) {
     console.error('Error in /pantry endpoint:', error);
     res.status(500).json({ error: 'Internal server error' });
@@ -340,10 +203,10 @@ app.get('/pantry/:userId', async (req, res) => {
 // Add ingredient to pantry
 app.post('/pantry', async (req, res) => {
   try {
-    const { userId, ingredientId, qty } = req.body;
+    const { userId = 'demo-user-123', ingredientId, qty } = req.body;
 
-    if (!userId || !ingredientId || qty === undefined) {
-      return res.status(400).json({ error: 'User ID, Ingredient ID, and quantity are required' });
+    if (!ingredientId || qty === undefined) {
+      return res.status(400).json({ error: 'Ingredient ID and quantity are required' });
     }
 
     const { data, error } = await supabase
@@ -370,7 +233,7 @@ app.post('/pantry', async (req, res) => {
 // Remove ingredient from pantry
 app.delete('/pantry/:userId/:ingredientId', async (req, res) => {
   try {
-    const { userId, ingredientId } = req.params;
+    const { userId = 'demo-user-123', ingredientId } = req.params;
 
     const { error } = await supabase
       .from('user_pantry')
@@ -393,17 +256,8 @@ app.delete('/pantry/:userId/:ingredientId', async (req, res) => {
 // Get all ingredients
 app.get('/ingredients', async (req, res) => {
   try {
-    const { data: ingredients, error } = await supabase
-      .from('ingredients')
-      .select('*')
-      .order('name');
-
-    if (error) {
-      console.error('Error fetching ingredients:', error);
-      return res.status(500).json({ error: 'Failed to fetch ingredients' });
-    }
-
-    res.json(ingredients);
+    // Return mock ingredients data
+    res.json(mockIngredients);
   } catch (error) {
     console.error('Error in /ingredients endpoint:', error);
     res.status(500).json({ error: 'Internal server error' });
