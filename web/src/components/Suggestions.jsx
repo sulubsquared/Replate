@@ -6,6 +6,8 @@ const Suggestions = ({ userId, refreshTrigger }) => {
   const [loading, setLoading] = useState(false);
   const [expandedRecipe, setExpandedRecipe] = useState(null);
   const [addingToMealPlan, setAddingToMealPlan] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isSearching, setIsSearching] = useState(false);
 
   const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:3001';
 
@@ -29,6 +31,26 @@ const Suggestions = ({ userId, refreshTrigger }) => {
       console.error('Error fetching suggestions:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleSearch = async (e) => {
+    e.preventDefault();
+    if (!searchQuery.trim()) return;
+
+    setIsSearching(true);
+    try {
+      const response = await fetch(`${API_BASE}/ai-suggest`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, query: searchQuery })
+      });
+      const data = await response.json();
+      setRecipes(data.recipes || []);
+    } catch (error) {
+      console.error('Error searching recipes:', error);
+    } finally {
+      setIsSearching(false);
     }
   };
 
@@ -64,23 +86,54 @@ const Suggestions = ({ userId, refreshTrigger }) => {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold text-burgundy-700">Recipe Suggestions</h1>
-          <p className="text-gray-600 mt-1">Discover recipes based on your pantry</p>
+      <div className="space-y-4">
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl font-bold text-burgundy-700">Recipe Suggestions</h1>
+            <p className="text-gray-600 mt-1">Discover recipes based on your pantry</p>
+          </div>
+          <button
+            onClick={handleReplate}
+            disabled={loading}
+            className="btn-primary flex items-center space-x-2"
+          >
+            {loading ? (
+              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+            ) : (
+              <Search className="h-5 w-5" />
+            )}
+            <span>Replate Me!</span>
+          </button>
         </div>
-        <button
-          onClick={handleReplate}
-          disabled={loading}
-          className="btn-primary flex items-center space-x-2"
-        >
-          {loading ? (
-            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-          ) : (
-            <Search className="h-5 w-5" />
-          )}
-          <span>Replate Me!</span>
-        </button>
+
+        <div className="card">
+          <form onSubmit={handleSearch} className="flex space-x-3">
+            <div className="flex-1 relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <Search className="h-5 w-5 text-gray-400" />
+              </div>
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-burgundy-500 focus:border-transparent"
+                placeholder="Search for specific recipes (e.g., 'pasta', 'chicken', 'dessert')..."
+              />
+              {isSearching && (
+                <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-burgundy-600"></div>
+                </div>
+              )}
+            </div>
+            <button
+              type="submit"
+              disabled={isSearching || !searchQuery.trim()}
+              className="btn-primary px-6"
+            >
+              {isSearching ? 'Searching...' : 'Search'}
+            </button>
+          </form>
+        </div>
       </div>
 
       {recipes.length === 0 ? (

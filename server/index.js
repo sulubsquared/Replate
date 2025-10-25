@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const { GoogleGenerativeAI } = require('@google/generative-ai');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -7,6 +8,10 @@ const PORT = process.env.PORT || 3001;
 // middleware
 app.use(cors());
 app.use(express.json());
+
+// initialize gemini ai
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY || 'demo-key';
+const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 
 // data storage
 const pantry = new Map();
@@ -170,6 +175,87 @@ app.post('/suggest', (req, res) => {
   ];
   
   res.json({ recipes, message: "Fuel up quick — no grocery run needed!", pantryCount: pantry.size });
+});
+
+// ai recipe search
+app.post('/ai-suggest', async (req, res) => {
+  try {
+    const { userId = 'demo-user-123', query } = req.body;
+    
+    if (!query) {
+      return res.status(400).json({ error: 'Search query required' });
+    }
+
+    // try gemini ai first
+    if (GEMINI_API_KEY !== 'demo-key') {
+      try {
+        const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+        const prompt = `Create 3 ${query} recipes with specific ingredients. Return JSON:
+        {
+          "recipes": [
+            {
+              "title": "Recipe Name",
+              "minutes": 30,
+              "calories": 400,
+              "protein": 25,
+              "carbs": 35,
+              "fat": 15,
+              "instructions": "Step by step instructions",
+              "photo_url": "https://images.unsplash.com/photo-1234567890?w=500",
+              "missingIngredients": [
+                {"name": "Ingredient Name", "needed": 2, "available": 0, "missing": 2, "unit": "cups"}
+              ]
+            }
+          ]
+        }`;
+
+        const timeoutPromise = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('AI timeout after 8 seconds')), 8000)
+        );
+        
+        const geminiPromise = model.generateContent(prompt).then(result => {
+          const response = result.response;
+          return response.text();
+        });
+        
+        const text = await Promise.race([geminiPromise, timeoutPromise]);
+        
+        // parse gemini response
+        const jsonMatch = text.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          const data = JSON.parse(jsonMatch[0]);
+          return res.json({ recipes: data.recipes, message: `Found ${data.recipes.length} ${query} recipes!` });
+        }
+      } catch (error) {
+        console.log('Gemini AI failed, using fallback:', error.message);
+      }
+    }
+
+    // fallback to basic recipes
+    const fallbackRecipes = [
+      {
+        id: `fallback-1-${Date.now()}`,
+        title: `Simple ${query.charAt(0).toUpperCase() + query.slice(1)} Recipe`,
+        minutes: 25,
+        calories: 350,
+        protein: 20,
+        carbs: 30,
+        fat: 12,
+        instructions: `1. Prepare ingredients for ${query}. 2. Follow traditional cooking method. 3. Season to taste. 4. Serve hot.`,
+        photo_url: `https://images.unsplash.com/photo-${1500000000 + Math.floor(Math.random() * 1000)}?w=500`,
+        missingIngredients: [
+          { name: 'Main Ingredient', needed: 2, available: 0, missing: 2, unit: 'cups' },
+          { name: 'Seasoning', needed: 1, available: 0, missing: 1, unit: 'tsp' }
+        ]
+      }
+    ];
+
+    res.json({ recipes: fallbackRecipes, message: `Found ${query} recipes!` });
+
+  } catch (error) {
+    console.error('Error in /ai-suggest endpoint:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 });
 
 // start server
