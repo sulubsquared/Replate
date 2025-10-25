@@ -325,7 +325,7 @@ function generateRecipesFromPantry(pantryIngredients) {
         carbs: 8,
         fat: 20,
         instructions: '1. Mix fresh basil with breadcrumbs and olive oil. 2. Season salmon with salt and pepper. 3. Top salmon with basil mixture. 4. Bake at 400°F for 12-15 minutes. 5. Serve with lemon wedges.',
-        photo_url: 'https://images.unsplash.com/photo-1551782450-a2132b4ba21d?w=500&h=300&fit=crop&crop=center&auto=format&q=80',
+        photo_url: 'https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=500&h=300&fit=crop&crop=center&auto=format&q=80',
         availableIngredients: 2,
         totalIngredients: 4,
         missingIngredients: [
@@ -345,7 +345,7 @@ function generateRecipesFromPantry(pantryIngredients) {
         carbs: 12,
         fat: 18,
         instructions: '1. Caramelize sliced onions in olive oil for 15 minutes. 2. Season salmon with salt and pepper. 3. Cook salmon 4-5 minutes per side. 4. Top with caramelized onions. 5. Serve hot.',
-        photo_url: 'https://images.unsplash.com/photo-1574781330855-d1fcfebf6a81?w=500&h=300&fit=crop&crop=center&auto=format&q=80',
+        photo_url: 'https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=500&h=300&fit=crop&crop=center&auto=format&q=80',
         availableIngredients: 2,
         totalIngredients: 3,
         missingIngredients: []
