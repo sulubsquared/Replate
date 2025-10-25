@@ -41,6 +41,16 @@ The app uses the following main tables:
 
 All tables include Row Level Security (RLS) policies for data protection.
 
+## ⚡ Quick Start
+
+Want to get Replate running in 5 minutes? Here's the fastest way:
+
+1. **Clone and setup database**: Create a Supabase project and run `supabase/schema.sql`
+2. **Backend**: `cd server && npm install && cp ../env.example .env` (add your Supabase keys)
+3. **Frontend**: `cd web && npm install && cp ../env.example .env` (add your Supabase keys)
+4. **Run**: Start both servers with `npm run dev` in each directory
+5. **Visit**: http://localhost:5173 and start planning meals!
+
 ## 🛠️ Setup Instructions
 
 ### 1. Database Setup (Supabase)
