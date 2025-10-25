@@ -292,7 +292,7 @@ function generateRecipesFromPantry(pantryIngredients) {
       carbs: 2,
       fat: 16,
       instructions: '1. Season salmon with salt and pepper. 2. Heat olive oil in pan over medium-high heat. 3. Cook salmon 4-5 minutes per side until golden. 4. Serve immediately with your favorite sides.',
-      photo_url: 'https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=500&h=300&fit=crop&crop=center',
+      photo_url: 'https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=500&h=300&fit=crop&crop=center&auto=format&q=80',
       availableIngredients: 1,
       totalIngredients: 2,
       missingIngredients: []
@@ -308,7 +308,7 @@ function generateRecipesFromPantry(pantryIngredients) {
         carbs: 5,
         fat: 18,
         instructions: '1. Season salmon with salt and pepper. 2. Heat olive oil in pan. 3. Add minced garlic and cook 30 seconds. 4. Add salmon and cook 4-5 minutes per side. 5. Serve immediately.',
-        photo_url: 'https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=500&h=300&fit=crop&crop=center',
+        photo_url: 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=500&h=300&fit=crop&crop=center&auto=format&q=80',
         availableIngredients: 2,
         totalIngredients: 3,
         missingIngredients: []
@@ -325,7 +325,7 @@ function generateRecipesFromPantry(pantryIngredients) {
         carbs: 8,
         fat: 20,
         instructions: '1. Mix fresh basil with breadcrumbs and olive oil. 2. Season salmon with salt and pepper. 3. Top salmon with basil mixture. 4. Bake at 400°F for 12-15 minutes. 5. Serve with lemon wedges.',
-        photo_url: 'https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=500&h=300&fit=crop&crop=center',
+        photo_url: 'https://images.unsplash.com/photo-1551782450-a2132b4ba21d?w=500&h=300&fit=crop&crop=center&auto=format&q=80',
         availableIngredients: 2,
         totalIngredients: 4,
         missingIngredients: [
@@ -345,7 +345,7 @@ function generateRecipesFromPantry(pantryIngredients) {
         carbs: 12,
         fat: 18,
         instructions: '1. Caramelize sliced onions in olive oil for 15 minutes. 2. Season salmon with salt and pepper. 3. Cook salmon 4-5 minutes per side. 4. Top with caramelized onions. 5. Serve hot.',
-        photo_url: 'https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=500&h=300&fit=crop&crop=center',
+        photo_url: 'https://images.unsplash.com/photo-1574781330855-d1fcfebf6a81?w=500&h=300&fit=crop&crop=center&auto=format&q=80',
         availableIngredients: 2,
         totalIngredients: 3,
         missingIngredients: []
@@ -364,7 +364,7 @@ function generateRecipesFromPantry(pantryIngredients) {
       carbs: 8,
       fat: 12,
       instructions: '1. Season chicken with salt and pepper. 2. Heat olive oil in pan. 3. Cook chicken until golden. 4. Add sliced onions and minced garlic. 5. Cook until onions are soft. 6. Serve hot.',
-      photo_url: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=500&h=300&fit=crop&crop=center',
+      photo_url: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=500&h=300&fit=crop&crop=center&auto=format&q=80',
       availableIngredients: 3,
       totalIngredients: 4,
       missingIngredients: []
@@ -382,7 +382,7 @@ function generateRecipesFromPantry(pantryIngredients) {
       carbs: 8,
       fat: 16,
       instructions: '1. Blend fresh basil with olive oil, garlic, and pine nuts. 2. Add parmesan cheese and salt. 3. Process until smooth. 4. Serve over pasta or as a spread.',
-      photo_url: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=500&h=300&fit=crop&crop=center',
+      photo_url: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=500&h=300&fit=crop&crop=center&auto=format&q=80',
       availableIngredients: 1,
       totalIngredients: 5,
       missingIngredients: [
@@ -403,7 +403,7 @@ function generateRecipesFromPantry(pantryIngredients) {
         carbs: 8,
         fat: 4,
         instructions: '1. Slice tomatoes and arrange on plate. 2. Tear fresh basil leaves. 3. Drizzle with olive oil and balsamic vinegar. 4. Season with salt and pepper. 5. Garnish with fresh basil.',
-        photo_url: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=500&h=300&fit=crop&crop=center',
+        photo_url: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=500&h=300&fit=crop&crop=center&auto=format&q=80',
         availableIngredients: 2,
         totalIngredients: 4,
         missingIngredients: [
@@ -425,7 +425,7 @@ function generateRecipesFromPantry(pantryIngredients) {
       carbs: 15,
       fat: 22,
       instructions: '1. Brown ground beef in pan. 2. Add diced onions and garlic. 3. Season with salt and pepper. 4. Cook until beef is done and onions are soft. 5. Serve hot.',
-      photo_url: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=500&h=300&fit=crop&crop=center',
+      photo_url: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=500&h=300&fit=crop&crop=center&auto=format&q=80',
       availableIngredients: 1,
       totalIngredients: 4,
       missingIngredients: [
@@ -445,7 +445,7 @@ function generateRecipesFromPantry(pantryIngredients) {
         carbs: 12,
         fat: 25,
         instructions: '1. Brown ground beef in large skillet. 2. Add sliced onions and minced garlic. 3. Season with salt and pepper. 4. Cook until onions are caramelized. 5. Serve over rice or with bread.',
-        photo_url: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=500&h=300&fit=crop&crop=center',
+        photo_url: 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=500&h=300&fit=crop&crop=center&auto=format&q=80',
         availableIngredients: 3,
         totalIngredients: 4,
         missingIngredients: []
@@ -464,7 +464,7 @@ function generateRecipesFromPantry(pantryIngredients) {
       carbs: 65,
       fat: 8,
       instructions: '1. Cook pasta according to package directions. 2. Heat olive oil in pan. 3. Add minced garlic and cook 30 seconds. 4. Toss pasta with garlic oil. 5. Season with salt and pepper.',
-      photo_url: 'https://images.unsplash.com/photo-1621996346565-e3dbc353d2e5?w=500&h=300&fit=crop&crop=center',
+      photo_url: 'https://images.unsplash.com/photo-1621996346565-e3dbc353d2e5?w=500&h=300&fit=crop&crop=center&auto=format&q=80',
       availableIngredients: 1,
       totalIngredients: 3,
       missingIngredients: [
@@ -483,7 +483,7 @@ function generateRecipesFromPantry(pantryIngredients) {
         carbs: 68,
         fat: 10,
         instructions: '1. Cook pasta until al dente. 2. Heat olive oil in pan. 3. Add minced garlic and cook 1 minute. 4. Add fresh herbs if available. 5. Toss pasta with garlic mixture. 6. Serve immediately.',
-        photo_url: 'https://images.unsplash.com/photo-1621996346565-e3dbc353d2e5?w=500&h=300&fit=crop&crop=center',
+        photo_url: 'https://images.unsplash.com/photo-1551782450-a2132b4ba21d?w=500&h=300&fit=crop&crop=center&auto=format&q=80',
         availableIngredients: 2,
         totalIngredients: 3,
         missingIngredients: []
@@ -502,7 +502,7 @@ function generateRecipesFromPantry(pantryIngredients) {
       carbs: 2,
       fat: 12,
       instructions: '1. Beat eggs with salt and pepper. 2. Heat olive oil in pan. 3. Add minced garlic and cook 30 seconds. 4. Add eggs and scramble gently. 5. Serve immediately.',
-      photo_url: 'https://images.unsplash.com/photo-1525351484163-7529414344d8?w=500&h=300&fit=crop&crop=center',
+      photo_url: 'https://images.unsplash.com/photo-1525351484163-7529414344d8?w=500&h=300&fit=crop&crop=center&auto=format&q=80',
       availableIngredients: 3,
       totalIngredients: 3,
       missingIngredients: []
@@ -520,7 +520,7 @@ function generateRecipesFromPantry(pantryIngredients) {
       carbs: 55,
       fat: 4,
       instructions: '1. Slice onions thinly. 2. Heat olive oil in pan. 3. Add onions and cook slowly until caramelized. 4. Add minced garlic. 5. Add rice and water. 6. Simmer until rice is cooked.',
-      photo_url: 'https://images.unsplash.com/photo-1603133872878-684f208fb84b?w=500&h=300&fit=crop&crop=center',
+      photo_url: 'https://images.unsplash.com/photo-1603133872878-684f208fb84b?w=500&h=300&fit=crop&crop=center&auto=format&q=80',
       availableIngredients: 3,
       totalIngredients: 3,
       missingIngredients: []
@@ -539,7 +539,7 @@ function generateRecipesFromPantry(pantryIngredients) {
       carbs: 25,
       fat: 20,
       instructions: '1. Dice chicken and season. 2. Beat eggs. 3. Heat oil in wok. 4. Cook chicken until done. 5. Add onions and garlic. 6. Push aside, scramble eggs. 7. Add rice and mix everything. 8. Season with salt and pepper.',
-      photo_url: 'https://images.unsplash.com/photo-1603133872878-684f208fb84b?w=500&h=300&fit=crop&crop=center',
+      photo_url: 'https://images.unsplash.com/photo-1603133872878-684f208fb84b?w=500&h=300&fit=crop&crop=center&auto=format&q=80',
       availableIngredients: 4,
       totalIngredients: 4,
       missingIngredients: []
@@ -557,7 +557,7 @@ function generateRecipesFromPantry(pantryIngredients) {
       carbs: 6,
       fat: 14,
       instructions: '1. Beat eggs with salt and pepper. 2. Heat olive oil in pan. 3. Add diced onions and cook until soft. 4. Pour eggs over onions. 5. Cook until set, fold in half. 6. Serve hot.',
-      photo_url: 'https://images.unsplash.com/photo-1525351484163-7529414344d8?w=500&h=300&fit=crop&crop=center',
+      photo_url: 'https://images.unsplash.com/photo-1525351484163-7529414344d8?w=500&h=300&fit=crop&crop=center&auto=format&q=80',
       availableIngredients: 3,
       totalIngredients: 3,
       missingIngredients: []

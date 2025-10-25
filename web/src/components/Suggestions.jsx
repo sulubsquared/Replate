@@ -108,7 +108,15 @@ const Suggestions = ({ userId, refreshTrigger }) => {
                   alt={recipe.title}
                   className="w-full h-48 object-cover rounded-lg"
                   onError={(e) => {
-                    e.target.src = `https://images.unsplash.com/photo-${1500000000 + Math.floor(Math.random() * 1000)}?w=500&h=300&fit=crop&crop=center`;
+                    // fallback to food-related images
+                    const fallbackImages = [
+                      'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=500&h=300&fit=crop&crop=center&auto=format&q=80',
+                      'https://images.unsplash.com/photo-1525351484163-7529414344d8?w=500&h=300&fit=crop&crop=center&auto=format&q=80',
+                      'https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=500&h=300&fit=crop&crop=center&auto=format&q=80',
+                      'https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=500&h=300&fit=crop&crop=center&auto=format&q=80',
+                      'https://images.unsplash.com/photo-1551782450-a2132b4ba21d?w=500&h=300&fit=crop&crop=center&auto=format&q=80'
+                    ];
+                    e.target.src = fallbackImages[Math.floor(Math.random() * fallbackImages.length)];
                   }}
                 />
               </div>
