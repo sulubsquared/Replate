@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
-import { Search, Clock, Flame, Zap, ChevronDown, ChevronUp, Plus, Calendar } from 'lucide-react';
+import { Search, Clock, Flame, Zap, ChevronDown, ChevronUp, Plus, Calendar, Settings, Shield, AlertTriangle } from 'lucide-react';
 
 const Suggestions = ({ userId, refreshTrigger }) => {
   const [recipes, setRecipes] = useState([]);
   const [loading, setLoading] = useState(false);
   const [expandedRecipe, setExpandedRecipe] = useState(null);
   const [addingToMealPlan, setAddingToMealPlan] = useState(false);
+  const [dietarySummary, setDietarySummary] = useState(null);
 
   const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:3001';
 
@@ -25,6 +26,7 @@ const Suggestions = ({ userId, refreshTrigger }) => {
       });
       const data = await response.json();
       setRecipes(data.recipes || []);
+      setDietarySummary(data.dietarySummary);
     } catch (error) {
       console.error('Error fetching suggestions:', error);
     } finally {
@@ -67,7 +69,7 @@ const Suggestions = ({ userId, refreshTrigger }) => {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold text-burgundy-700">Recipe Suggestions</h1>
-          <p className="text-gray-600 mt-1">Discover recipes based on your pantry</p>
+          <p className="text-gray-600 mt-1">Discover recipes based on your pantry and dietary preferences</p>
         </div>
         <button
           onClick={handleReplate}
@@ -82,6 +84,30 @@ const Suggestions = ({ userId, refreshTrigger }) => {
           <span>Replate Me!</span>
         </button>
       </div>
+
+
+      {/* Dietary Summary */}
+      {dietarySummary && (
+        <div className="card bg-green-50 border border-green-200">
+          <div className="flex items-center space-x-2 mb-2">
+            <AlertTriangle className="h-5 w-5 text-green-600" />
+            <h3 className="font-semibold text-green-800">
+              {dietarySummary.usingSavedPreferences ? 'Using Saved Dietary Preferences' : 'Dietary Filtering Applied'}
+            </h3>
+          </div>
+          <div className="text-sm text-green-700">
+            <p><strong>Diet:</strong> {dietarySummary.diet}</p>
+            <p><strong>Allergies:</strong> {dietarySummary.allergies.length > 0 ? dietarySummary.allergies.join(', ') : 'None'}</p>
+            <p><strong>Restrictions:</strong> {dietarySummary.restrictions.length > 0 ? dietarySummary.restrictions.join(', ') : 'None'}</p>
+            <p><strong>Filtered out:</strong> {dietarySummary.filteredCount} recipes</p>
+            {dietarySummary.usingSavedPreferences && (
+              <p className="text-xs text-green-600 mt-2">
+                💡 Update your preferences in the "Preferences" tab to change filtering
+              </p>
+            )}
+          </div>
+        </div>
+      )}
 
       {recipes.length === 0 ? (
         <div className="card text-center py-12">

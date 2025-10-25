@@ -12,6 +12,7 @@ app.use(express.json());
 const pantry = new Map();
 const ingredients = new Map();
 const mealPlan = new Map();
+const userProfiles = new Map();
 
 // initialize data
 const initData = () => {
@@ -129,11 +130,202 @@ app.delete('/meal-plan/:day/:mealId', (req, res) => {
   res.json({ success: true });
 });
 
-// get recipe suggestions
-app.post('/suggest', (req, res) => {
-  const { userId = 'demo-user-123' } = req.body;
+// dietary restriction and allergy filtering functions
+const getAllergenMap = () => {
+  return {
+    'peanuts': ['peanut', 'peanut butter', 'peanut oil', 'groundnut', 'arachis'],
+    'tree nuts': ['almond', 'walnut', 'cashew', 'pistachio', 'hazelnut', 'pecan', 'brazil nut', 'macadamia', 'pine nut'],
+    'shellfish': ['shrimp', 'crab', 'lobster', 'crayfish', 'prawn', 'scallop', 'oyster', 'mussel', 'clam', 'squid', 'octopus'],
+    'fish': ['salmon', 'tuna', 'cod', 'halibut', 'mackerel', 'sardine', 'anchovy', 'fish sauce', 'seafood'],
+    'eggs': ['egg', 'egg white', 'egg yolk', 'mayonnaise', 'meringue', 'albumen'],
+    'dairy': ['milk', 'cheese', 'butter', 'cream', 'yogurt', 'whey', 'casein', 'lactose', 'dairy'],
+    'soy': ['soy', 'soybean', 'tofu', 'tempeh', 'miso', 'soy sauce', 'edamame', 'soy milk'],
+    'wheat': ['wheat', 'flour', 'bread', 'pasta', 'couscous', 'bulgur', 'seitan'],
+    'gluten': ['wheat', 'barley', 'rye', 'oats', 'flour', 'bread', 'pasta', 'beer', 'gluten'],
+    'sesame': ['sesame', 'tahini', 'sesame oil', 'sesame seed', 'benne']
+  };
+};
+
+const checkAllergenInRecipe = (recipe, allergen) => {
+  const allergenMap = getAllergenMap();
+  const allergens = allergenMap[allergen.toLowerCase()] || [allergen.toLowerCase()];
   
-  const recipes = [
+  // check in recipe title and instructions
+  const textToCheck = `${recipe.title} ${recipe.instructions}`.toLowerCase();
+  
+  return allergens.some(allergen => textToCheck.includes(allergen));
+};
+
+const checkDietCompatibility = (recipe, diet) => {
+  const dietRules = {
+    'keto': () => {
+      const carbPercent = recipe.carbs ? (recipe.carbs * 4 / (recipe.calories || 1)) * 100 : 0;
+      return carbPercent <= 10;
+    },
+    'low-carb': () => {
+      const carbPercent = recipe.carbs ? (recipe.carbs * 4 / (recipe.calories || 1)) * 100 : 0;
+      return carbPercent <= 20;
+    },
+    'vegetarian': () => {
+      const meatKeywords = ['chicken', 'beef', 'pork', 'fish', 'meat', 'bacon', 'ham', 'turkey', 'lamb'];
+      const textToCheck = `${recipe.title} ${recipe.instructions}`.toLowerCase();
+      return !meatKeywords.some(meat => textToCheck.includes(meat));
+    },
+    'vegan': () => {
+      const nonVeganKeywords = ['chicken', 'beef', 'pork', 'fish', 'meat', 'bacon', 'ham', 'turkey', 'lamb', 'milk', 'cheese', 'butter', 'cream', 'yogurt', 'egg'];
+      const textToCheck = `${recipe.title} ${recipe.instructions}`.toLowerCase();
+      return !nonVeganKeywords.some(keyword => textToCheck.includes(keyword));
+    },
+    'halal': () => {
+      const haramKeywords = ['pork', 'bacon', 'ham', 'alcohol', 'wine', 'beer', 'liquor'];
+      const textToCheck = `${recipe.title} ${recipe.instructions}`.toLowerCase();
+      return !haramKeywords.some(keyword => textToCheck.includes(keyword));
+    },
+    'kosher': () => {
+      const nonKosherKeywords = ['pork', 'shellfish', 'bacon', 'ham', 'alcohol', 'wine', 'mixing meat dairy'];
+      const textToCheck = `${recipe.title} ${recipe.instructions}`.toLowerCase();
+      return !nonKosherKeywords.some(keyword => textToCheck.includes(keyword));
+    },
+    'paleo': () => {
+      const nonPaleoKeywords = ['grain', 'wheat', 'rice', 'dairy', 'processed', 'sugar', 'legume'];
+      const textToCheck = `${recipe.title} ${recipe.instructions}`.toLowerCase();
+      return !nonPaleoKeywords.some(keyword => textToCheck.includes(keyword));
+    },
+    'mediterranean': () => {
+      const mediterraneanKeywords = ['olive oil', 'fish', 'vegetables', 'herbs', 'tomato', 'garlic'];
+      const textToCheck = `${recipe.title} ${recipe.instructions}`.toLowerCase();
+      return mediterraneanKeywords.some(keyword => textToCheck.includes(keyword));
+    },
+    'dash': () => {
+      const dashKeywords = ['vegetables', 'fruits', 'whole grain', 'low sodium'];
+      const textToCheck = `${recipe.title} ${recipe.instructions}`.toLowerCase();
+      return dashKeywords.some(keyword => textToCheck.includes(keyword));
+    }
+  };
+  
+  const dietFunction = dietRules[diet.toLowerCase()];
+  return dietFunction ? dietFunction() : true;
+};
+
+const filterRecipesByDietaryRestrictions = (recipes, preferences) => {
+  let filteredRecipes = [...recipes];
+  
+  // filter by allergies
+  if (preferences.allergies && preferences.allergies.length > 0) {
+    filteredRecipes = filteredRecipes.filter(recipe => {
+      return !preferences.allergies.some(allergy => 
+        checkAllergenInRecipe(recipe, allergy)
+      );
+    });
+  }
+  
+  // filter by diet
+  if (preferences.diet && preferences.diet !== 'none') {
+    filteredRecipes = filteredRecipes.filter(recipe => 
+      checkDietCompatibility(recipe, preferences.diet)
+    );
+  }
+  
+  // filter by personal restrictions
+  if (preferences.restricted_ingredients && preferences.restricted_ingredients.length > 0) {
+    filteredRecipes = filteredRecipes.filter(recipe => {
+      const textToCheck = `${recipe.title} ${recipe.instructions}`.toLowerCase();
+      return !preferences.restricted_ingredients.some(restriction => 
+        textToCheck.includes(restriction.toLowerCase())
+      );
+    });
+  }
+  
+  return filteredRecipes;
+};
+
+// save user dietary preferences
+app.post('/profile/preferences', (req, res) => {
+  const { userId, preferences } = req.body;
+  
+  if (!userId) {
+    return res.status(400).json({ error: 'User ID is required' });
+  }
+
+  // save preferences to user profile
+  userProfiles.set(userId, {
+    userId,
+    preferences: preferences || {},
+    updatedAt: new Date().toISOString()
+  });
+
+    res.json({
+    success: true, 
+    message: 'Dietary preferences saved successfully',
+    preferences: userProfiles.get(userId).preferences
+    });
+});
+
+// get user dietary preferences
+app.get('/profile/preferences/:userId', (req, res) => {
+    const { userId } = req.params;
+
+  const profile = userProfiles.get(userId);
+  if (!profile) {
+    return res.json({ 
+      preferences: {
+        diet: 'none',
+        allergies: [],
+        restricted_ingredients: []
+      }
+    });
+  }
+
+  res.json({ preferences: profile.preferences });
+});
+
+// get dietary options
+app.get('/dietary-options', (req, res) => {
+  const dietOptions = [
+    { value: 'none', label: 'No specific diet', description: 'No dietary restrictions' },
+    { value: 'keto', label: 'Keto', description: 'Very low carb, high fat diet' },
+    { value: 'low-carb', label: 'Low Carb', description: 'Reduced carbohydrate intake' },
+    { value: 'vegetarian', label: 'Vegetarian', description: 'No meat or fish' },
+    { value: 'vegan', label: 'Vegan', description: 'No animal products' },
+    { value: 'halal', label: 'Halal', description: 'Islamic dietary guidelines' },
+    { value: 'kosher', label: 'Kosher', description: 'Jewish dietary laws' },
+    { value: 'paleo', label: 'Paleo', description: 'Paleolithic diet principles' },
+    { value: 'mediterranean', label: 'Mediterranean', description: 'Heart-healthy Mediterranean style' },
+    { value: 'dash', label: 'DASH', description: 'Dietary Approaches to Stop Hypertension' }
+  ];
+
+  const allergyOptions = [
+    { value: 'peanuts', label: 'Peanuts', severity: 'high' },
+    { value: 'tree nuts', label: 'Tree Nuts', severity: 'high' },
+    { value: 'shellfish', label: 'Shellfish', severity: 'high' },
+    { value: 'fish', label: 'Fish', severity: 'high' },
+    { value: 'eggs', label: 'Eggs', severity: 'high' },
+    { value: 'dairy', label: 'Dairy', severity: 'high' },
+    { value: 'soy', label: 'Soy', severity: 'medium' },
+    { value: 'wheat', label: 'Wheat', severity: 'medium' },
+    { value: 'gluten', label: 'Gluten', severity: 'medium' },
+    { value: 'sesame', label: 'Sesame', severity: 'medium' }
+  ];
+
+  res.json({ dietOptions, allergyOptions });
+});
+
+// get recipe suggestions with dietary filtering
+app.post('/suggest', (req, res) => {
+  const { userId = 'demo-user-123', preferences = null } = req.body;
+  
+  // get saved preferences from user profile if not provided
+  let userPreferences = preferences;
+  if (!userPreferences) {
+    const profile = userProfiles.get(userId);
+    userPreferences = profile ? profile.preferences : {
+      diet: 'none',
+      allergies: [],
+      restricted_ingredients: []
+    };
+  }
+  
+  const allRecipes = [
     {
       id: '1',
       title: 'Simple Chicken and Rice',
@@ -166,10 +358,81 @@ app.post('/suggest', (req, res) => {
         { name: 'Butter', needed: 1, available: 0, missing: 1, unit: 'tbsp' },
         { name: 'Milk', needed: 0.25, available: 0, missing: 0.25, unit: 'cups' }
       ]
+    },
+    {
+      id: '3',
+      title: 'Vegan Buddha Bowl',
+      minutes: 25,
+      calories: 320,
+      protein: 12,
+      carbs: 35,
+      fat: 15,
+      instructions: '1. Roast vegetables with olive oil. 2. Cook quinoa. 3. Prepare tahini dressing. 4. Combine all ingredients in a bowl.',
+      photo_url: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=500',
+      coverage: 0.4,
+      availableIngredients: 2,
+      totalIngredients: 5,
+      missingIngredients: [
+        { name: 'Quinoa', needed: 1, available: 0, missing: 1, unit: 'cups' },
+        { name: 'Tahini', needed: 2, available: 0, missing: 2, unit: 'tbsp' }
+      ]
+    },
+    {
+      id: '4',
+      title: 'Keto Salmon with Asparagus',
+      minutes: 20,
+      calories: 380,
+      protein: 28,
+      carbs: 8,
+      fat: 25,
+      instructions: '1. Season salmon with herbs. 2. Pan-sear salmon. 3. Roast asparagus with olive oil. 4. Serve together.',
+      photo_url: 'https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=500',
+      coverage: 0.3,
+      availableIngredients: 1,
+      totalIngredients: 4,
+      missingIngredients: [
+        { name: 'Salmon', needed: 1, available: 0, missing: 1, unit: 'lbs' },
+        { name: 'Asparagus', needed: 1, available: 0, missing: 1, unit: 'bunch' }
+      ]
+    },
+    {
+      id: '5',
+      title: 'Mediterranean Pasta',
+      minutes: 35,
+      calories: 420,
+      protein: 18,
+      carbs: 55,
+      fat: 12,
+      instructions: '1. Cook pasta. 2. Sauté garlic and tomatoes in olive oil. 3. Add herbs and olives. 4. Toss with pasta.',
+      photo_url: 'https://images.unsplash.com/photo-1621996346565-e3dbc353d2e5?w=500',
+      coverage: 0.5,
+      availableIngredients: 3,
+      totalIngredients: 6,
+      missingIngredients: [
+        { name: 'Pasta', needed: 1, available: 0, missing: 1, unit: 'lbs' },
+        { name: 'Olives', needed: 0.5, available: 0, missing: 0.5, unit: 'cups' }
+      ]
     }
   ];
   
-  res.json({ recipes, message: "Fuel up quick — no grocery run needed!", pantryCount: pantry.size });
+  // filter recipes based on dietary restrictions
+  const filteredRecipes = filterRecipesByDietaryRestrictions(allRecipes, userPreferences);
+  
+  // generate dietary summary
+  const dietarySummary = {
+    diet: userPreferences.diet || 'none',
+    allergies: userPreferences.allergies || [],
+    restrictions: userPreferences.restricted_ingredients || [],
+    filteredCount: allRecipes.length - filteredRecipes.length,
+    usingSavedPreferences: !preferences
+  };
+  
+  res.json({ 
+    recipes: filteredRecipes, 
+    message: `Found ${filteredRecipes.length} recipes matching your dietary preferences!`, 
+    pantryCount: pantry.size,
+    dietarySummary
+  });
 });
 
 // start server

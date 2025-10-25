@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { ChefHat, ShoppingCart, Calendar } from 'lucide-react';
+import { ChefHat, ShoppingCart, Calendar, Settings } from 'lucide-react';
 import Pantry from './components/Pantry';
 import Suggestions from './components/Suggestions';
 import MealPlan from './components/MealPlan';
+import DietaryPreferences from './components/DietaryPreferences';
 
 function App() {
   const [activeTab, setActiveTab] = useState('pantry');
@@ -13,6 +14,7 @@ function App() {
     { id: 'pantry', label: 'Pantry', icon: ShoppingCart },
     { id: 'suggestions', label: 'Suggestions', icon: ChefHat },
     { id: 'meal-plan', label: 'Meal Plan', icon: Calendar },
+    { id: 'preferences', label: 'Preferences', icon: Settings },
   ];
 
   return (
@@ -64,6 +66,7 @@ function App() {
         {activeTab === 'pantry' && <Pantry userId={userId} />}
         {activeTab === 'suggestions' && <Suggestions userId={userId} />}
         {activeTab === 'meal-plan' && <MealPlan userId={userId} />}
+        {activeTab === 'preferences' && <DietaryPreferences userId={userId} />}
       </main>
     </div>
   );
