@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Search, Clock, Flame, Zap, ChevronDown, ChevronUp, Plus, Calendar, Settings, Shield, AlertTriangle } from 'lucide-react';
+import { Search, Clock, Flame, Zap, ChevronDown, ChevronUp, Plus, Calendar, Settings, Shield, AlertTriangle, CheckCircle } from 'lucide-react';
 
 const Suggestions = ({ userId, refreshTrigger }) => {
   const [recipes, setRecipes] = useState([]);
@@ -144,6 +144,45 @@ const Suggestions = ({ userId, refreshTrigger }) => {
                     <span>{recipe.protein}g protein</span>
                   </div>
                 </div>
+
+                {/* Missing Ingredients - Always Visible */}
+                {recipe.missingIngredients && recipe.missingIngredients.length > 0 && (
+                  <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                    <div className="flex items-center space-x-2 mb-2">
+                      <AlertTriangle className="h-4 w-4 text-red-600" />
+                      <span className="text-sm font-medium text-red-800">Missing Ingredients</span>
+                    </div>
+                    <div className="space-y-1">
+                      {recipe.missingIngredients.slice(0, 3).map((ingredient, index) => (
+                        <div key={index} className="flex items-center justify-between text-sm">
+                          <span className="text-red-700">
+                            {ingredient.name} ({ingredient.missing} {ingredient.unit})
+                          </span>
+                          <button className="text-red-600 hover:text-red-700">
+                            <Plus className="h-4 w-4" />
+                          </button>
+                        </div>
+                      ))}
+                      {recipe.missingIngredients.length > 3 && (
+                        <div className="text-xs text-red-600">
+                          +{recipe.missingIngredients.length - 3} more ingredients needed
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Available Ingredients - Show when no missing ingredients */}
+                {(!recipe.missingIngredients || recipe.missingIngredients.length === 0) && recipe.availableIngredients > 0 && (
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+                    <div className="flex items-center space-x-2">
+                      <CheckCircle className="h-4 w-4 text-green-600" />
+                      <span className="text-sm font-medium text-green-800">
+                        You have all {recipe.availableIngredients} ingredients needed!
+                      </span>
+                    </div>
+                  </div>
+                )}
 
                 <div className="flex items-center justify-between">
                   <button
