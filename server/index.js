@@ -301,14 +301,14 @@ function generateRecipesFromPantry(pantryIngredients) {
     if (pantryIngredients.includes('garlic')) {
       recipes.push({
         id: 'salmon-2',
-        title: 'Garlic Salmon',
-        minutes: 20,
-        calories: 350,
-        protein: 45,
-        carbs: 5,
-        fat: 18,
-        instructions: '1. Season salmon with salt and pepper. 2. Heat olive oil in pan. 3. Add minced garlic and cook 30 seconds. 4. Add salmon and cook 4-5 minutes per side. 5. Serve immediately.',
-        photo_url: 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=500&h=300&fit=crop&crop=center&auto=format&q=80',
+      title: 'Garlic Salmon',
+      minutes: 20,
+      calories: 350,
+      protein: 45,
+      carbs: 5,
+      fat: 18,
+      instructions: '1. Season salmon with salt and pepper. 2. Heat olive oil in pan. 3. Add minced garlic and cook 30 seconds. 4. Add salmon and cook 4-5 minutes per side. 5. Serve immediately.',
+      photo_url: 'https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=500&h=300&fit=crop&crop=center&auto=format&q=80',
         availableIngredients: 2,
         totalIngredients: 3,
         missingIngredients: []
@@ -445,7 +445,7 @@ function generateRecipesFromPantry(pantryIngredients) {
         carbs: 12,
         fat: 25,
         instructions: '1. Brown ground beef in large skillet. 2. Add sliced onions and minced garlic. 3. Season with salt and pepper. 4. Cook until onions are caramelized. 5. Serve over rice or with bread.',
-        photo_url: 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=500&h=300&fit=crop&crop=center&auto=format&q=80',
+        photo_url: 'https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=500&h=300&fit=crop&crop=center&auto=format&q=80',
         availableIngredients: 3,
         totalIngredients: 4,
         missingIngredients: []
