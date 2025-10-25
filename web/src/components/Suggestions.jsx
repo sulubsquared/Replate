@@ -4,7 +4,7 @@ import { Search, Clock, Flame, Zap, ChevronDown, ChevronUp, Plus, Calendar } fro
 const Suggestions = ({ userId, refreshTrigger }) => {
   const [recipes, setRecipes] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [expandedRecipe, setExpandedRecipe] = useState(null);
+  const [expandedRecipes, setExpandedRecipes] = useState(new Set());
   const [addingToMealPlan, setAddingToMealPlan] = useState(false);
 
   const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:3001';
@@ -60,7 +60,15 @@ const Suggestions = ({ userId, refreshTrigger }) => {
   };
 
   const toggleRecipeExpansion = (recipeId) => {
-    setExpandedRecipe(expandedRecipe === recipeId ? null : recipeId);
+    setExpandedRecipes(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(recipeId)) {
+        newSet.delete(recipeId);
+      } else {
+        newSet.add(recipeId);
+      }
+      return newSet;
+    });
   };
 
   return (
@@ -94,11 +102,14 @@ const Suggestions = ({ userId, refreshTrigger }) => {
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {recipes.map((recipe) => (
             <div key={recipe.id} className="card overflow-hidden">
-              <div className="aspect-w-16 aspect-h-9 mb-4">
+              <div className="mb-4">
                 <img
                   src={recipe.photo_url}
                   alt={recipe.title}
                   className="w-full h-48 object-cover rounded-lg"
+                  onError={(e) => {
+                    e.target.src = `https://images.unsplash.com/photo-${1500000000 + Math.floor(Math.random() * 1000)}?w=500&h=300&fit=crop&crop=center`;
+                  }}
                 />
               </div>
               
@@ -125,8 +136,8 @@ const Suggestions = ({ userId, refreshTrigger }) => {
                     onClick={() => toggleRecipeExpansion(recipe.id)}
                     className="text-burgundy-600 hover:text-burgundy-700 text-sm font-medium flex items-center space-x-1"
                   >
-                    <span>View Recipe Details</span>
-                    {expandedRecipe === recipe.id ? (
+                    <span>{expandedRecipes.has(recipe.id) ? 'Hide Details' : 'View Recipe Details'}</span>
+                    {expandedRecipes.has(recipe.id) ? (
                       <ChevronUp className="h-4 w-4" />
                     ) : (
                       <ChevronDown className="h-4 w-4" />
@@ -151,7 +162,7 @@ const Suggestions = ({ userId, refreshTrigger }) => {
                   </div>
                 </div>
 
-                {expandedRecipe === recipe.id && (
+                {expandedRecipes.has(recipe.id) && (
                   <div className="space-y-4 pt-4 border-t">
                     <div>
                       <h4 className="font-medium text-gray-800 mb-2">Instructions</h4>

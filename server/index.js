@@ -223,7 +223,7 @@ function generateRecipesFromPantry(pantryIngredients) {
       carbs: 8,
       fat: 12,
       instructions: '1. Season chicken with salt and pepper. 2. Heat olive oil in pan. 3. Cook chicken until golden. 4. Add sliced onions and minced garlic. 5. Cook until onions are soft. 6. Serve hot.',
-      photo_url: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=500',
+      photo_url: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=500&h=300&fit=crop&crop=center',
       availableIngredients: 3,
       totalIngredients: 4,
       missingIngredients: []
@@ -241,7 +241,7 @@ function generateRecipesFromPantry(pantryIngredients) {
       carbs: 2,
       fat: 12,
       instructions: '1. Beat eggs with salt and pepper. 2. Heat olive oil in pan. 3. Add minced garlic and cook 30 seconds. 4. Add eggs and scramble gently. 5. Serve immediately.',
-      photo_url: 'https://images.unsplash.com/photo-1525351484163-7529414344d8?w=500',
+      photo_url: 'https://images.unsplash.com/photo-1525351484163-7529414344d8?w=500&h=300&fit=crop&crop=center',
       availableIngredients: 3,
       totalIngredients: 3,
       missingIngredients: []
@@ -259,7 +259,7 @@ function generateRecipesFromPantry(pantryIngredients) {
       carbs: 55,
       fat: 4,
       instructions: '1. Slice onions thinly. 2. Heat olive oil in pan. 3. Add onions and cook slowly until caramelized. 4. Add minced garlic. 5. Add rice and water. 6. Simmer until rice is cooked.',
-      photo_url: 'https://images.unsplash.com/photo-1603133872878-684f208fb84b?w=500',
+      photo_url: 'https://images.unsplash.com/photo-1603133872878-684f208fb84b?w=500&h=300&fit=crop&crop=center',
       availableIngredients: 3,
       totalIngredients: 3,
       missingIngredients: []
@@ -278,7 +278,7 @@ function generateRecipesFromPantry(pantryIngredients) {
       carbs: 25,
       fat: 20,
       instructions: '1. Dice chicken and season. 2. Beat eggs. 3. Heat oil in wok. 4. Cook chicken until done. 5. Add onions and garlic. 6. Push aside, scramble eggs. 7. Add rice and mix everything. 8. Season with salt and pepper.',
-      photo_url: 'https://images.unsplash.com/photo-1603133872878-684f208fb84b?w=500',
+      photo_url: 'https://images.unsplash.com/photo-1603133872878-684f208fb84b?w=500&h=300&fit=crop&crop=center',
       availableIngredients: 4,
       totalIngredients: 4,
       missingIngredients: []
@@ -296,7 +296,7 @@ function generateRecipesFromPantry(pantryIngredients) {
       carbs: 6,
       fat: 14,
       instructions: '1. Beat eggs with salt and pepper. 2. Heat olive oil in pan. 3. Add diced onions and cook until soft. 4. Pour eggs over onions. 5. Cook until set, fold in half. 6. Serve hot.',
-      photo_url: 'https://images.unsplash.com/photo-1525351484163-7529414344d8?w=500',
+      photo_url: 'https://images.unsplash.com/photo-1525351484163-7529414344d8?w=500&h=300&fit=crop&crop=center',
       availableIngredients: 3,
       totalIngredients: 3,
       missingIngredients: []
