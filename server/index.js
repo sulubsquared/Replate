@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
@@ -10,7 +11,7 @@ app.use(cors());
 app.use(express.json());
 
 // initialize gemini ai
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY || 'demo-key';
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY || 'AIzaSyA4jAiqNLqeLQ7LKOR2fEj-nX_y_dcQNPo';
 const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 
 // data storage
@@ -210,37 +211,26 @@ app.post('/suggest', async (req, res) => {
     if (GEMINI_API_KEY !== 'demo-key') {
       try {
         const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
-        const prompt = `Based on these pantry ingredients: ${pantryIngredients.join(', ')}, create 6 diverse and creative recipes that use these ingredients. Make recipes that are practical and delicious. Each recipe should have:
-
-1. A creative, appetizing title
-2. Realistic cooking time (5-45 minutes)
-3. Accurate nutritional estimates
-4. Detailed step-by-step instructions
-5. Use mostly pantry ingredients, add 1-2 common missing ingredients max
-6. Include proper quantities and measurements
-
-Return JSON format:
+        const prompt = `Create 5 recipes using these ingredients: ${pantryIngredients.join(', ')}. Return JSON:
 {
   "recipes": [
     {
-      "title": "Creative Recipe Name",
-      "minutes": 25,
-      "calories": 400,
+      "title": "Recipe Name",
+      "minutes": 20,
+      "calories": 300,
       "protein": 25,
-      "carbs": 35,
+      "carbs": 20,
       "fat": 15,
-      "instructions": "1. Step one with details. 2. Step two with details. 3. Continue...",
-      "availableIngredients": 4,
-      "totalIngredients": 5,
-      "missingIngredients": [
-        {"name": "Missing Ingredient", "needed": 2, "available": 0, "missing": 2, "unit": "cups"}
-      ]
+      "instructions": "1. Step one. 2. Step two. 3. Step three.",
+      "availableIngredients": 3,
+      "totalIngredients": 4,
+      "missingIngredients": [{"name": "Missing Item", "needed": 1, "available": 0, "missing": 1, "unit": "cups"}]
     }
   ]
 }`;
 
         const timeoutPromise = new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('AI timeout after 10 seconds')), 10000)
+          setTimeout(() => reject(new Error('AI timeout after 5 seconds')), 5000)
         );
         
         const geminiPromise = model.generateContent(prompt).then(result => {
@@ -344,6 +334,23 @@ function generateRecipesFromPantry(pantryIngredients) {
         ]
       });
     }
+    
+    if (pantryIngredients.includes('onion')) {
+      recipes.push({
+        id: 'salmon-4',
+        title: 'Salmon with Caramelized Onions',
+        minutes: 30,
+        calories: 380,
+        protein: 42,
+        carbs: 12,
+        fat: 18,
+        instructions: '1. Caramelize sliced onions in olive oil for 15 minutes. 2. Season salmon with salt and pepper. 3. Cook salmon 4-5 minutes per side. 4. Top with caramelized onions. 5. Serve hot.',
+        photo_url: 'https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=500&h=300&fit=crop&crop=center',
+        availableIngredients: 2,
+        totalIngredients: 3,
+        missingIngredients: []
+      });
+    }
   }
 
   // chicken-based recipes
@@ -385,6 +392,103 @@ function generateRecipesFromPantry(pantryIngredients) {
         {name: 'Garlic', needed: 2, available: 0, missing: 2, unit: 'cloves'}
       ]
     });
+    
+    if (pantryIngredients.includes('tomato')) {
+      recipes.push({
+        id: 'basil-2',
+        title: 'Fresh Basil and Tomato Salad',
+        minutes: 5,
+        calories: 80,
+        protein: 2,
+        carbs: 8,
+        fat: 4,
+        instructions: '1. Slice tomatoes and arrange on plate. 2. Tear fresh basil leaves. 3. Drizzle with olive oil and balsamic vinegar. 4. Season with salt and pepper. 5. Garnish with fresh basil.',
+        photo_url: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=500&h=300&fit=crop&crop=center',
+        availableIngredients: 2,
+        totalIngredients: 4,
+        missingIngredients: [
+          {name: 'Balsamic Vinegar', needed: 2, available: 0, missing: 2, unit: 'tbsp'},
+          {name: 'Olive Oil', needed: 1, available: 0, missing: 1, unit: 'tbsp'}
+        ]
+      });
+    }
+  }
+
+  // ground beef recipes
+  if (pantryIngredients.includes('ground beef')) {
+    recipes.push({
+      id: 'beef-1',
+      title: 'Simple Beef Stir Fry',
+      minutes: 20,
+      calories: 400,
+      protein: 35,
+      carbs: 15,
+      fat: 22,
+      instructions: '1. Brown ground beef in pan. 2. Add diced onions and garlic. 3. Season with salt and pepper. 4. Cook until beef is done and onions are soft. 5. Serve hot.',
+      photo_url: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=500&h=300&fit=crop&crop=center',
+      availableIngredients: 1,
+      totalIngredients: 4,
+      missingIngredients: [
+        {name: 'Onion', needed: 1, available: 0, missing: 1, unit: 'pieces'},
+        {name: 'Garlic', needed: 2, available: 0, missing: 2, unit: 'cloves'},
+        {name: 'Olive Oil', needed: 1, available: 0, missing: 1, unit: 'tbsp'}
+      ]
+    });
+    
+    if (pantryIngredients.includes('onion') && pantryIngredients.includes('garlic')) {
+      recipes.push({
+        id: 'beef-2',
+        title: 'Beef and Onion Skillet',
+        minutes: 25,
+        calories: 450,
+        protein: 38,
+        carbs: 12,
+        fat: 25,
+        instructions: '1. Brown ground beef in large skillet. 2. Add sliced onions and minced garlic. 3. Season with salt and pepper. 4. Cook until onions are caramelized. 5. Serve over rice or with bread.',
+        photo_url: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=500&h=300&fit=crop&crop=center',
+        availableIngredients: 3,
+        totalIngredients: 4,
+        missingIngredients: []
+      });
+    }
+  }
+
+  // pasta recipes
+  if (pantryIngredients.includes('pasta')) {
+    recipes.push({
+      id: 'pasta-1',
+      title: 'Simple Garlic Pasta',
+      minutes: 15,
+      calories: 350,
+      protein: 12,
+      carbs: 65,
+      fat: 8,
+      instructions: '1. Cook pasta according to package directions. 2. Heat olive oil in pan. 3. Add minced garlic and cook 30 seconds. 4. Toss pasta with garlic oil. 5. Season with salt and pepper.',
+      photo_url: 'https://images.unsplash.com/photo-1621996346565-e3dbc353d2e5?w=500&h=300&fit=crop&crop=center',
+      availableIngredients: 1,
+      totalIngredients: 3,
+      missingIngredients: [
+        {name: 'Garlic', needed: 3, available: 0, missing: 3, unit: 'cloves'},
+        {name: 'Olive Oil', needed: 2, available: 0, missing: 2, unit: 'tbsp'}
+      ]
+    });
+    
+    if (pantryIngredients.includes('garlic')) {
+      recipes.push({
+        id: 'pasta-2',
+        title: 'Garlic and Herb Pasta',
+        minutes: 20,
+        calories: 380,
+        protein: 14,
+        carbs: 68,
+        fat: 10,
+        instructions: '1. Cook pasta until al dente. 2. Heat olive oil in pan. 3. Add minced garlic and cook 1 minute. 4. Add fresh herbs if available. 5. Toss pasta with garlic mixture. 6. Serve immediately.',
+        photo_url: 'https://images.unsplash.com/photo-1621996346565-e3dbc353d2e5?w=500&h=300&fit=crop&crop=center',
+        availableIngredients: 2,
+        totalIngredients: 3,
+        missingIngredients: []
+      });
+    }
   }
 
   // egg-based recipes
