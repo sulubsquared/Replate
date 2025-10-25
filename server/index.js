@@ -291,6 +291,61 @@ Return JSON format:
 function generateRecipesFromPantry(pantryIngredients) {
   const recipes = [];
   
+  // salmon-based recipes
+  if (pantryIngredients.includes('salmon')) {
+    recipes.push({
+      id: 'salmon-1',
+      title: 'Simple Pan-Seared Salmon',
+      minutes: 15,
+      calories: 320,
+      protein: 40,
+      carbs: 2,
+      fat: 16,
+      instructions: '1. Season salmon with salt and pepper. 2. Heat olive oil in pan over medium-high heat. 3. Cook salmon 4-5 minutes per side until golden. 4. Serve immediately with your favorite sides.',
+      photo_url: 'https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=500&h=300&fit=crop&crop=center',
+      availableIngredients: 1,
+      totalIngredients: 2,
+      missingIngredients: []
+    });
+    
+    if (pantryIngredients.includes('garlic')) {
+      recipes.push({
+        id: 'salmon-2',
+        title: 'Garlic Salmon',
+        minutes: 20,
+        calories: 350,
+        protein: 45,
+        carbs: 5,
+        fat: 18,
+        instructions: '1. Season salmon with salt and pepper. 2. Heat olive oil in pan. 3. Add minced garlic and cook 30 seconds. 4. Add salmon and cook 4-5 minutes per side. 5. Serve immediately.',
+        photo_url: 'https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=500&h=300&fit=crop&crop=center',
+        availableIngredients: 2,
+        totalIngredients: 3,
+        missingIngredients: []
+      });
+    }
+    
+    if (pantryIngredients.includes('fresh basil')) {
+      recipes.push({
+        id: 'salmon-3',
+        title: 'Basil-Crusted Salmon',
+        minutes: 25,
+        calories: 380,
+        protein: 42,
+        carbs: 8,
+        fat: 20,
+        instructions: '1. Mix fresh basil with breadcrumbs and olive oil. 2. Season salmon with salt and pepper. 3. Top salmon with basil mixture. 4. Bake at 400°F for 12-15 minutes. 5. Serve with lemon wedges.',
+        photo_url: 'https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=500&h=300&fit=crop&crop=center',
+        availableIngredients: 2,
+        totalIngredients: 4,
+        missingIngredients: [
+          {name: 'Breadcrumbs', needed: 0.5, available: 0, missing: 0.5, unit: 'cups'},
+          {name: 'Lemon', needed: 1, available: 0, missing: 1, unit: 'pieces'}
+        ]
+      });
+    }
+  }
+
   // chicken-based recipes
   if (pantryIngredients.includes('chicken breast')) {
     recipes.push({
@@ -309,6 +364,29 @@ function generateRecipesFromPantry(pantryIngredients) {
     });
   }
   
+  // fresh basil recipes
+  if (pantryIngredients.includes('fresh basil')) {
+    recipes.push({
+      id: 'basil-1',
+      title: 'Fresh Basil Pesto',
+      minutes: 10,
+      calories: 180,
+      protein: 4,
+      carbs: 8,
+      fat: 16,
+      instructions: '1. Blend fresh basil with olive oil, garlic, and pine nuts. 2. Add parmesan cheese and salt. 3. Process until smooth. 4. Serve over pasta or as a spread.',
+      photo_url: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=500&h=300&fit=crop&crop=center',
+      availableIngredients: 1,
+      totalIngredients: 5,
+      missingIngredients: [
+        {name: 'Pine Nuts', needed: 0.25, available: 0, missing: 0.25, unit: 'cups'},
+        {name: 'Parmesan Cheese', needed: 0.5, available: 0, missing: 0.5, unit: 'cups'},
+        {name: 'Olive Oil', needed: 0.25, available: 0, missing: 0.25, unit: 'cups'},
+        {name: 'Garlic', needed: 2, available: 0, missing: 2, unit: 'cloves'}
+      ]
+    });
+  }
+
   // egg-based recipes
   if (pantryIngredients.includes('eggs')) {
     recipes.push({
