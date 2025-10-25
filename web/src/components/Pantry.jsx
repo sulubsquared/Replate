@@ -10,6 +10,8 @@ const Pantry = ({ userId, onPantryUpdate }) => {
   const [quantity, setQuantity] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
+  const [showCustomForm, setShowCustomForm] = useState(false);
+  const [customIngredient, setCustomIngredient] = useState({ name: '', unit: 'pieces' });
 
   const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:3001';
 
@@ -84,6 +86,37 @@ const Pantry = ({ userId, onPantryUpdate }) => {
     }
   };
 
+  const handleAddCustomIngredient = async (e) => {
+    e.preventDefault();
+    if (!customIngredient.name || !quantity) return;
+
+    try {
+      const response = await fetch(`${API_BASE}/pantry`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId,
+          customIngredient: {
+            name: customIngredient.name,
+            unit: customIngredient.unit
+          },
+          qty: parseFloat(quantity)
+        })
+      });
+
+      if (response.ok) {
+        fetchPantry();
+        onPantryUpdate?.();
+        setCustomIngredient({ name: '', unit: 'pieces' });
+        setQuantity('');
+        setShowCustomForm(false);
+        setShowAddForm(false);
+      }
+    } catch (error) {
+      console.error('Error adding custom ingredient:', error);
+    }
+  };
+
   const handleRemoveIngredient = async (ingredientId) => {
     try {
       const response = await fetch(`${API_BASE}/pantry/${userId}/${ingredientId}`, {
@@ -130,13 +163,22 @@ const Pantry = ({ userId, onPantryUpdate }) => {
           <h1 className="text-3xl font-bold text-burgundy-700">My Pantry</h1>
           <p className="text-gray-600 mt-1">Manage the ingredients you have at home</p>
         </div>
-        <button
-          onClick={() => setShowAddForm(!showAddForm)}
-          className="btn-primary flex items-center space-x-2"
-        >
-          <Plus className="h-5 w-5" />
-          <span>Add Ingredient</span>
-        </button>
+        <div className="flex space-x-3">
+          <button
+            onClick={() => setShowAddForm(!showAddForm)}
+            className="btn-primary flex items-center space-x-2"
+          >
+            <Plus className="h-5 w-5" />
+            <span>Add Ingredient</span>
+          </button>
+          <button
+            onClick={() => setShowCustomForm(!showCustomForm)}
+            className="btn-secondary flex items-center space-x-2"
+          >
+            <Plus className="h-5 w-5" />
+            <span>Add Custom</span>
+          </button>
+        </div>
       </div>
 
       {showAddForm && (
@@ -210,6 +252,81 @@ const Pantry = ({ userId, onPantryUpdate }) => {
                   setShowAddForm(false);
                   setSearchQuery('');
                   setSearchResults([]);
+                }}
+                className="btn-secondary"
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+
+      {showCustomForm && (
+        <div className="card">
+          <h3 className="text-lg font-semibold text-gray-800 mb-4">Add Custom Ingredient</h3>
+          <form onSubmit={handleAddCustomIngredient} className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Ingredient Name
+                </label>
+                <input
+                  type="text"
+                  value={customIngredient.name}
+                  onChange={(e) => setCustomIngredient({...customIngredient, name: e.target.value})}
+                  className="input"
+                  placeholder="e.g., Fresh Basil, Coconut Oil"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Unit
+                </label>
+                <select
+                  value={customIngredient.unit}
+                  onChange={(e) => setCustomIngredient({...customIngredient, unit: e.target.value})}
+                  className="input"
+                >
+                  <option value="pieces">pieces</option>
+                  <option value="cups">cups</option>
+                  <option value="tbsp">tbsp</option>
+                  <option value="tsp">tsp</option>
+                  <option value="lbs">lbs</option>
+                  <option value="oz">oz</option>
+                  <option value="ml">ml</option>
+                  <option value="grams">grams</option>
+                </select>
+              </div>
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Quantity
+              </label>
+              <input
+                type="number"
+                step="0.1"
+                min="0"
+                value={quantity}
+                onChange={(e) => setQuantity(e.target.value)}
+                className="input"
+                placeholder="0.0"
+                required
+              />
+            </div>
+            
+            <div className="flex space-x-3">
+              <button type="submit" className="btn-primary">
+                Add to Pantry
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowCustomForm(false);
+                  setCustomIngredient({ name: '', unit: 'pieces' });
+                  setQuantity('');
                 }}
                 className="btn-secondary"
               >

@@ -21,25 +21,76 @@ const mealPlan = new Map();
 // initialize data
 const initData = () => {
   const mockIngredients = [
+    // proteins
     { id: '1', name: 'Chicken Breast', unit: 'lbs' },
-    { id: '2', name: 'Rice', unit: 'cups' },
-    { id: '3', name: 'Onion', unit: 'pieces' },
-    { id: '4', name: 'Garlic', unit: 'cloves' },
-    { id: '5', name: 'Tomato', unit: 'pieces' },
-    { id: '6', name: 'Olive Oil', unit: 'tbsp' },
-    { id: '7', name: 'Salt', unit: 'tsp' },
-    { id: '8', name: 'Black Pepper', unit: 'tsp' },
-    { id: '9', name: 'Eggs', unit: 'pieces' },
-    { id: '10', name: 'Milk', unit: 'cups' }
+    { id: '2', name: 'Ground Beef', unit: 'lbs' },
+    { id: '3', name: 'Salmon', unit: 'lbs' },
+    { id: '4', name: 'Tofu', unit: 'cups' },
+    { id: '5', name: 'Eggs', unit: 'pieces' },
+    { id: '6', name: 'Shrimp', unit: 'lbs' },
+    { id: '7', name: 'Turkey', unit: 'lbs' },
+    { id: '8', name: 'Pork Chops', unit: 'pieces' },
+    
+    // vegetables
+    { id: '9', name: 'Onion', unit: 'pieces' },
+    { id: '10', name: 'Garlic', unit: 'cloves' },
+    { id: '11', name: 'Tomato', unit: 'pieces' },
+    { id: '12', name: 'Bell Pepper', unit: 'pieces' },
+    { id: '13', name: 'Carrot', unit: 'pieces' },
+    { id: '14', name: 'Broccoli', unit: 'cups' },
+    { id: '15', name: 'Spinach', unit: 'cups' },
+    { id: '16', name: 'Mushrooms', unit: 'cups' },
+    { id: '17', name: 'Zucchini', unit: 'pieces' },
+    { id: '18', name: 'Potato', unit: 'pieces' },
+    { id: '19', name: 'Sweet Potato', unit: 'pieces' },
+    { id: '20', name: 'Avocado', unit: 'pieces' },
+    
+    // grains & carbs
+    { id: '21', name: 'Rice', unit: 'cups' },
+    { id: '22', name: 'Pasta', unit: 'cups' },
+    { id: '23', name: 'Quinoa', unit: 'cups' },
+    { id: '24', name: 'Bread', unit: 'slices' },
+    { id: '25', name: 'Tortillas', unit: 'pieces' },
+    { id: '26', name: 'Oats', unit: 'cups' },
+    
+    // dairy
+    { id: '27', name: 'Milk', unit: 'cups' },
+    { id: '28', name: 'Cheese', unit: 'cups' },
+    { id: '29', name: 'Yogurt', unit: 'cups' },
+    { id: '30', name: 'Butter', unit: 'tbsp' },
+    { id: '31', name: 'Cream', unit: 'cups' },
+    
+    // oils & seasonings
+    { id: '32', name: 'Olive Oil', unit: 'tbsp' },
+    { id: '33', name: 'Salt', unit: 'tsp' },
+    { id: '34', name: 'Black Pepper', unit: 'tsp' },
+    { id: '35', name: 'Basil', unit: 'tsp' },
+    { id: '36', name: 'Oregano', unit: 'tsp' },
+    { id: '37', name: 'Paprika', unit: 'tsp' },
+    { id: '38', name: 'Cumin', unit: 'tsp' },
+    { id: '39', name: 'Ginger', unit: 'tbsp' },
+    { id: '40', name: 'Lemon', unit: 'pieces' },
+    { id: '41', name: 'Lime', unit: 'pieces' },
+    
+    // pantry staples
+    { id: '42', name: 'Flour', unit: 'cups' },
+    { id: '43', name: 'Sugar', unit: 'cups' },
+    { id: '44', name: 'Honey', unit: 'tbsp' },
+    { id: '45', name: 'Soy Sauce', unit: 'tbsp' },
+    { id: '46', name: 'Vinegar', unit: 'tbsp' },
+    { id: '47', name: 'Coconut Milk', unit: 'cups' },
+    { id: '48', name: 'Almonds', unit: 'cups' },
+    { id: '49', name: 'Walnuts', unit: 'cups' },
+    { id: '50', name: 'Chickpeas', unit: 'cups' }
   ];
 
   mockIngredients.forEach(ing => ingredients.set(ing.id, ing));
   
   // add some demo pantry items
-  pantry.set('1', { id: '1', qty: 2, ingredients: ingredients.get('1') });
-  pantry.set('2', { id: '2', qty: 1, ingredients: ingredients.get('3') });
-  pantry.set('3', { id: '3', qty: 3, ingredients: ingredients.get('4') });
-  pantry.set('4', { id: '4', qty: 6, ingredients: ingredients.get('9') });
+  pantry.set('1', { id: '1', qty: 2, ingredients: ingredients.get('1') }); // chicken breast
+  pantry.set('2', { id: '2', qty: 1, ingredients: ingredients.get('9') }); // onion
+  pantry.set('3', { id: '3', qty: 3, ingredients: ingredients.get('10') }); // garlic
+  pantry.set('4', { id: '4', qty: 6, ingredients: ingredients.get('5') }); // eggs
 };
 
 initData();
@@ -56,15 +107,28 @@ app.get('/pantry/:userId', (req, res) => {
 
 // add to pantry
 app.post('/pantry', (req, res) => {
-  const { userId = 'demo-user-123', ingredientId, qty } = req.body;
+  const { userId = 'demo-user-123', ingredientId, qty, customIngredient } = req.body;
   
-  if (!ingredientId || qty === undefined) {
-    return res.status(400).json({ error: 'Ingredient ID and quantity required' });
+  if (!ingredientId && !customIngredient) {
+    return res.status(400).json({ error: 'Ingredient ID or custom ingredient required' });
   }
 
-  const ingredient = ingredients.get(ingredientId);
-  if (!ingredient) {
-    return res.status(404).json({ error: 'Ingredient not found' });
+  let ingredient;
+  
+  if (customIngredient) {
+    // create new custom ingredient
+    const newId = (ingredients.size + 1).toString();
+    ingredient = {
+      id: newId,
+      name: customIngredient.name,
+      unit: customIngredient.unit || 'pieces'
+    };
+    ingredients.set(newId, ingredient);
+  } else {
+    ingredient = ingredients.get(ingredientId);
+    if (!ingredient) {
+      return res.status(404).json({ error: 'Ingredient not found' });
+    }
   }
 
   const pantryId = Date.now().toString();
@@ -146,29 +210,37 @@ app.post('/suggest', async (req, res) => {
     if (GEMINI_API_KEY !== 'demo-key') {
       try {
         const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
-        const prompt = `Based on these pantry ingredients: ${pantryIngredients.join(', ')}, create 5 specific recipes that use these ingredients. Each recipe should be detailed with specific quantities and instructions. Return JSON:
-        {
-          "recipes": [
-            {
-              "title": "Specific Recipe Name",
-              "minutes": 25,
-              "calories": 400,
-              "protein": 25,
-              "carbs": 35,
-              "fat": 15,
-              "instructions": "Detailed step-by-step instructions",
-              "photo_url": "https://images.unsplash.com/photo-1234567890?w=500",
-              "availableIngredients": 3,
-              "totalIngredients": 5,
-              "missingIngredients": [
-                {"name": "Missing Ingredient", "needed": 2, "available": 0, "missing": 2, "unit": "cups"}
-              ]
-            }
-          ]
-        }`;
+        const prompt = `Based on these pantry ingredients: ${pantryIngredients.join(', ')}, create 6 diverse and creative recipes that use these ingredients. Make recipes that are practical and delicious. Each recipe should have:
+
+1. A creative, appetizing title
+2. Realistic cooking time (5-45 minutes)
+3. Accurate nutritional estimates
+4. Detailed step-by-step instructions
+5. Use mostly pantry ingredients, add 1-2 common missing ingredients max
+6. Include proper quantities and measurements
+
+Return JSON format:
+{
+  "recipes": [
+    {
+      "title": "Creative Recipe Name",
+      "minutes": 25,
+      "calories": 400,
+      "protein": 25,
+      "carbs": 35,
+      "fat": 15,
+      "instructions": "1. Step one with details. 2. Step two with details. 3. Continue...",
+      "availableIngredients": 4,
+      "totalIngredients": 5,
+      "missingIngredients": [
+        {"name": "Missing Ingredient", "needed": 2, "available": 0, "missing": 2, "unit": "cups"}
+      ]
+    }
+  ]
+}`;
 
         const timeoutPromise = new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('AI timeout after 8 seconds')), 8000)
+          setTimeout(() => reject(new Error('AI timeout after 10 seconds')), 10000)
         );
         
         const geminiPromise = model.generateContent(prompt).then(result => {
@@ -182,9 +254,16 @@ app.post('/suggest', async (req, res) => {
         const jsonMatch = text.match(/\{[\s\S]*\}/);
         if (jsonMatch) {
           const data = JSON.parse(jsonMatch[0]);
+          // add photo URLs to each recipe
+          const recipesWithPhotos = data.recipes.map((recipe, index) => ({
+            ...recipe,
+            id: `ai-${Date.now()}-${index}`,
+            photo_url: `https://images.unsplash.com/photo-${1500000000 + Math.floor(Math.random() * 10000)}?w=500&h=300&fit=crop&crop=center`
+          }));
+          
           return res.json({ 
-            recipes: data.recipes, 
-            message: `Found ${data.recipes.length} recipes using your pantry ingredients!`, 
+            recipes: recipesWithPhotos, 
+            message: `AI generated ${recipesWithPhotos.length} creative recipes using your pantry ingredients!`, 
             pantryCount: pantry.size 
           });
         }
