@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Search, Clock, Flame, Zap, ChevronDown, ChevronUp, Plus, Calendar, Utensils } from 'lucide-react';
+import { Search, Clock, Flame, Zap, ChevronDown, ChevronUp, Plus, Calendar, Utensils, Fish, Beef, Egg, Pasta, Rice, Leaf, Onion, Soup, Salad, Pizza, Cake } from 'lucide-react';
 
 const Suggestions = ({ userId, refreshTrigger }) => {
   const [recipes, setRecipes] = useState([]);
@@ -8,6 +8,27 @@ const Suggestions = ({ userId, refreshTrigger }) => {
   const [addingToMealPlan, setAddingToMealPlan] = useState(false);
 
   const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:3001';
+
+  // function to get the appropriate icon component
+  const getRecipeIcon = (iconType) => {
+    const iconProps = { className: "h-16 w-16 text-burgundy-400" };
+    
+    switch (iconType) {
+      case 'fish': return <Fish {...iconProps} />;
+      case 'chicken': return <Beef {...iconProps} />; // using beef icon for chicken
+      case 'beef': return <Beef {...iconProps} />;
+      case 'egg': return <Egg {...iconProps} />;
+      case 'pasta': return <Pasta {...iconProps} />;
+      case 'rice': return <Rice {...iconProps} />;
+      case 'herb': return <Leaf {...iconProps} />;
+      case 'onion': return <Onion {...iconProps} />;
+      case 'soup': return <Soup {...iconProps} />;
+      case 'salad': return <Salad {...iconProps} />;
+      case 'pizza': return <Pizza {...iconProps} />;
+      case 'dessert': return <Cake {...iconProps} />;
+      default: return <Utensils {...iconProps} />;
+    }
+  };
 
   useEffect(() => {
     if (refreshTrigger) {
@@ -103,7 +124,7 @@ const Suggestions = ({ userId, refreshTrigger }) => {
           {recipes.map((recipe) => (
             <div key={recipe.id} className="card overflow-hidden">
               <div className="mb-4 flex items-center justify-center h-48 bg-gradient-to-br from-burgundy-50 to-cream-50 rounded-lg">
-                <Utensils className="h-16 w-16 text-burgundy-400" />
+                {getRecipeIcon(recipe.icon_type)}
               </div>
               
               <div className="space-y-3">

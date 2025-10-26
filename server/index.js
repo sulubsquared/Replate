@@ -248,7 +248,8 @@ app.post('/suggest', async (req, res) => {
           const recipesWithPhotos = data.recipes.map((recipe, index) => ({
             ...recipe,
             id: `ai-${Date.now()}-${index}`,
-            photo_url: null
+            photo_url: null,
+            icon_type: getIconType(recipe.title)
           }));
           
           return res.json({ 
@@ -277,6 +278,26 @@ app.post('/suggest', async (req, res) => {
   }
 });
 
+// helper function to determine icon type based on recipe title
+function getIconType(title) {
+  const lowerTitle = title.toLowerCase();
+  
+  if (lowerTitle.includes('salmon') || lowerTitle.includes('fish')) return 'fish';
+  if (lowerTitle.includes('chicken')) return 'chicken';
+  if (lowerTitle.includes('beef') || lowerTitle.includes('meat')) return 'beef';
+  if (lowerTitle.includes('egg')) return 'egg';
+  if (lowerTitle.includes('pasta') || lowerTitle.includes('noodle')) return 'pasta';
+  if (lowerTitle.includes('rice')) return 'rice';
+  if (lowerTitle.includes('basil') || lowerTitle.includes('herb')) return 'herb';
+  if (lowerTitle.includes('onion')) return 'onion';
+  if (lowerTitle.includes('soup')) return 'soup';
+  if (lowerTitle.includes('salad')) return 'salad';
+  if (lowerTitle.includes('pizza')) return 'pizza';
+  if (lowerTitle.includes('cake') || lowerTitle.includes('dessert')) return 'dessert';
+  
+  return 'utensils'; // default fallback
+}
+
 // helper function to generate recipes based on pantry
 function generateRecipesFromPantry(pantryIngredients) {
   const recipes = [];
@@ -293,6 +314,7 @@ function generateRecipesFromPantry(pantryIngredients) {
       fat: 16,
       instructions: '1. Season salmon with salt and pepper. 2. Heat olive oil in pan over medium-high heat. 3. Cook salmon 4-5 minutes per side until golden. 4. Serve immediately with your favorite sides.',
       photo_url: null,
+      icon_type: 'fish',
       availableIngredients: 1,
       totalIngredients: 2,
       missingIngredients: []
@@ -309,6 +331,7 @@ function generateRecipesFromPantry(pantryIngredients) {
       fat: 18,
       instructions: '1. Season salmon with salt and pepper. 2. Heat olive oil in pan. 3. Add minced garlic and cook 30 seconds. 4. Add salmon and cook 4-5 minutes per side. 5. Serve immediately.',
       photo_url: null,
+      icon_type: 'fish',
         availableIngredients: 2,
         totalIngredients: 3,
         missingIngredients: []
@@ -365,6 +388,7 @@ function generateRecipesFromPantry(pantryIngredients) {
       fat: 12,
       instructions: '1. Season chicken with salt and pepper. 2. Heat olive oil in pan. 3. Cook chicken until golden. 4. Add sliced onions and minced garlic. 5. Cook until onions are soft. 6. Serve hot.',
       photo_url: null,
+      icon_type: 'chicken',
       availableIngredients: 3,
       totalIngredients: 4,
       missingIngredients: []
@@ -503,6 +527,7 @@ function generateRecipesFromPantry(pantryIngredients) {
       fat: 12,
       instructions: '1. Beat eggs with salt and pepper. 2. Heat olive oil in pan. 3. Add minced garlic and cook 30 seconds. 4. Add eggs and scramble gently. 5. Serve immediately.',
       photo_url: null,
+      icon_type: 'egg',
       availableIngredients: 3,
       totalIngredients: 3,
       missingIngredients: []
@@ -521,6 +546,7 @@ function generateRecipesFromPantry(pantryIngredients) {
       fat: 4,
       instructions: '1. Slice onions thinly. 2. Heat olive oil in pan. 3. Add onions and cook slowly until caramelized. 4. Add minced garlic. 5. Add rice and water. 6. Simmer until rice is cooked.',
       photo_url: null,
+      icon_type: 'rice',
       availableIngredients: 3,
       totalIngredients: 3,
       missingIngredients: []
@@ -540,6 +566,7 @@ function generateRecipesFromPantry(pantryIngredients) {
       fat: 20,
       instructions: '1. Dice chicken and season. 2. Beat eggs. 3. Heat oil in wok. 4. Cook chicken until done. 5. Add onions and garlic. 6. Push aside, scramble eggs. 7. Add rice and mix everything. 8. Season with salt and pepper.',
       photo_url: null,
+      icon_type: 'rice',
       availableIngredients: 4,
       totalIngredients: 4,
       missingIngredients: []
@@ -558,6 +585,7 @@ function generateRecipesFromPantry(pantryIngredients) {
       fat: 14,
       instructions: '1. Beat eggs with salt and pepper. 2. Heat olive oil in pan. 3. Add diced onions and cook until soft. 4. Pour eggs over onions. 5. Cook until set, fold in half. 6. Serve hot.',
       photo_url: null,
+      icon_type: 'egg',
       availableIngredients: 3,
       totalIngredients: 3,
       missingIngredients: []
