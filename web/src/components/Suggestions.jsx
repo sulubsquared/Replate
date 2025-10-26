@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Search, Clock, Flame, Zap, ChevronDown, ChevronUp, Plus, Calendar, Utensils, Fish, Beef, Egg, Pasta, Rice, Leaf, Onion, Soup, Salad, Pizza, Cake } from 'lucide-react';
+import { Search, Clock, Flame, Zap, ChevronDown, ChevronUp, Plus, Calendar, Utensils, Fish, Beef, Egg, Pasta, Rice, Leaf, Soup, Salad, Pizza, Cake, Circle } from 'lucide-react';
 
 const Suggestions = ({ userId, refreshTrigger }) => {
   const [recipes, setRecipes] = useState([]);
@@ -21,7 +21,7 @@ const Suggestions = ({ userId, refreshTrigger }) => {
       case 'pasta': return <Pasta {...iconProps} />;
       case 'rice': return <Rice {...iconProps} />;
       case 'herb': return <Leaf {...iconProps} />;
-      case 'onion': return <Onion {...iconProps} />;
+      case 'onion': return <Circle {...iconProps} />; // using circle for onion
       case 'soup': return <Soup {...iconProps} />;
       case 'salad': return <Salad {...iconProps} />;
       case 'pizza': return <Pizza {...iconProps} />;
