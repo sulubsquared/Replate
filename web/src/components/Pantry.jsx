@@ -73,6 +73,15 @@ const Pantry = ({ userId, onPantryUpdate }) => {
       });
 
       if (response.ok) {
+        const data = await response.json();
+        
+        // show success message based on whether item was updated or added
+        if (data.wasExisting) {
+          alert(`✅ Updated! ${data.message}`);
+        } else {
+          alert(`✅ Added! ${data.message}`);
+        }
+        
         fetchPantry();
         onPantryUpdate?.();
         setSelectedIngredient('');
@@ -83,6 +92,7 @@ const Pantry = ({ userId, onPantryUpdate }) => {
       }
     } catch (error) {
       console.error('Error adding ingredient:', error);
+      alert('❌ Error adding ingredient. Please try again.');
     }
   };
 
@@ -105,6 +115,15 @@ const Pantry = ({ userId, onPantryUpdate }) => {
       });
 
       if (response.ok) {
+        const data = await response.json();
+        
+        // show success message based on whether item was updated or added
+        if (data.wasExisting) {
+          alert(`✅ Updated! ${data.message}`);
+        } else {
+          alert(`✅ Added! ${data.message}`);
+        }
+        
         fetchPantry();
         onPantryUpdate?.();
         setCustomIngredient({ name: '', unit: 'pieces' });
@@ -114,6 +133,7 @@ const Pantry = ({ userId, onPantryUpdate }) => {
       }
     } catch (error) {
       console.error('Error adding custom ingredient:', error);
+      alert('❌ Error adding ingredient. Please try again.');
     }
   };
 

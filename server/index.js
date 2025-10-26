@@ -63,11 +63,50 @@ app.post('/pantry', (req, res) => {
     return res.status(404).json({ error: 'Ingredient not found' });
   }
 
-  const pantryId = Date.now().toString();
-  const pantryItem = { id: pantryId, qty, ingredients: ingredient };
-  pantry.set(pantryId, pantryItem);
+  // check if ingredient already exists in pantry
+  let existingItem = null;
+  let existingItemId = null;
   
-  res.json(pantryItem);
+  for (const [id, item] of pantry.entries()) {
+    if (item.ingredients.id === ingredientId) {
+      existingItem = item;
+      existingItemId = id;
+      break;
+    }
+  }
+
+  if (existingItem) {
+    // update existing item quantity
+    const newQty = existingItem.qty + qty;
+    const updatedItem = { 
+      ...existingItem, 
+      qty: newQty,
+      updatedAt: new Date().toISOString()
+    };
+    pantry.set(existingItemId, updatedItem);
+    
+    res.json({
+      ...updatedItem,
+      message: `Updated ${ingredient.name} quantity to ${newQty}`,
+      wasExisting: true
+    });
+  } else {
+    // create new pantry item
+    const pantryId = Date.now().toString();
+    const pantryItem = { 
+      id: pantryId, 
+      qty, 
+      ingredients: ingredient,
+      createdAt: new Date().toISOString()
+    };
+    pantry.set(pantryId, pantryItem);
+    
+    res.json({
+      ...pantryItem,
+      message: `Added ${qty} ${ingredient.name} to pantry`,
+      wasExisting: false
+    });
+  }
 });
 
 // remove from pantry
