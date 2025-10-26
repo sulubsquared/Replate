@@ -105,9 +105,9 @@ app.post('/pantry', (req, res) => {
       ...pantryItem,
       message: `Added ${qty} ${ingredient.name} to pantry`,
       wasExisting: false
-    });
-  }
-});
+          });
+        }
+      });
 
 // remove from pantry
 app.delete('/pantry/:userId/:ingredientId', (req, res) => {
@@ -373,7 +373,7 @@ app.post('/suggest', (req, res) => {
       protein: 35.5,
       carbs: 45,
       fat: 8,
-      instructions: '1. Season chicken with salt and pepper. 2. Cook chicken in olive oil until golden. 3. Add rice and water, simmer until cooked. 4. Serve hot.',
+      instructions: '1. Season chicken with salt and pepper.\n2. Cook chicken in olive oil until golden.\n3. Add rice and water, simmer until cooked.\n4. Serve hot.',
       photo_url: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=500',
       coverage: 0.8,
       availableIngredients: 4,
@@ -388,7 +388,7 @@ app.post('/suggest', (req, res) => {
       protein: 15.0,
       carbs: 2,
       fat: 14,
-      instructions: '1. Beat eggs with milk, salt, and pepper. 2. Heat butter in pan. 3. Add eggs and scramble gently. 4. Serve immediately.',
+      instructions: '1. Beat eggs with milk, salt, and pepper.\n2. Heat butter in pan.\n3. Add eggs and scramble gently.\n4. Serve immediately.',
       photo_url: 'https://images.unsplash.com/photo-1525351484163-7529414344d8?w=500',
       coverage: 0.6,
       availableIngredients: 3,
@@ -406,7 +406,7 @@ app.post('/suggest', (req, res) => {
       protein: 12,
       carbs: 35,
       fat: 15,
-      instructions: '1. Roast vegetables with olive oil. 2. Cook quinoa. 3. Prepare tahini dressing. 4. Combine all ingredients in a bowl.',
+      instructions: '1. Roast vegetables with olive oil.\n2. Cook quinoa.\n3. Prepare tahini dressing.\n4. Combine all ingredients in a bowl.',
       photo_url: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=500',
       coverage: 0.4,
       availableIngredients: 2,
@@ -424,7 +424,7 @@ app.post('/suggest', (req, res) => {
       protein: 28,
       carbs: 8,
       fat: 25,
-      instructions: '1. Season salmon with herbs. 2. Pan-sear salmon. 3. Roast asparagus with olive oil. 4. Serve together.',
+      instructions: '1. Season salmon with herbs.\n2. Pan-sear salmon.\n3. Roast asparagus with olive oil.\n4. Serve together.',
       photo_url: 'https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=500',
       coverage: 0.3,
       availableIngredients: 1,
@@ -442,7 +442,7 @@ app.post('/suggest', (req, res) => {
       protein: 18,
       carbs: 55,
       fat: 12,
-      instructions: '1. Cook pasta. 2. Sauté garlic and tomatoes in olive oil. 3. Add herbs and olives. 4. Toss with pasta.',
+      instructions: '1. Cook pasta.\n2. Sauté garlic and tomatoes in olive oil.\n3. Add herbs and olives.\n4. Toss with pasta.',
       photo_url: 'https://images.unsplash.com/photo-1621996346565-e3dbc353d2e5?w=500',
       coverage: 0.5,
       availableIngredients: 3,

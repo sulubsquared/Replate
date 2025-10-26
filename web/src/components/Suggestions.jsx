@@ -219,26 +219,8 @@ const Suggestions = ({ userId, refreshTrigger }) => {
                   <div className="space-y-4 pt-4 border-t">
                     <div>
                       <h4 className="font-medium text-gray-800 mb-2">Instructions</h4>
-                      <p className="text-sm text-gray-600">{recipe.instructions}</p>
+                      <p className="text-sm text-gray-600 whitespace-pre-line">{recipe.instructions}</p>
                     </div>
-                    
-                    {recipe.missingIngredients && recipe.missingIngredients.length > 0 && (
-                      <div>
-                        <h4 className="font-medium text-gray-800 mb-2">Missing Ingredients</h4>
-                        <div className="space-y-1">
-                          {recipe.missingIngredients.map((ingredient, index) => (
-                            <div key={index} className="flex items-center justify-between text-sm">
-                              <span className="text-gray-600">
-                                {ingredient.name} ({ingredient.missing} {ingredient.unit})
-                              </span>
-                              <button className="text-burgundy-600 hover:text-burgundy-700">
-                                <Plus className="h-4 w-4" />
-                              </button>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
                   </div>
                 )}
               </div>
