@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Search, Clock, Flame, Zap, ChevronDown, ChevronUp, Plus, Calendar } from 'lucide-react';
+import { Search, Clock, Flame, Zap, ChevronDown, ChevronUp, Plus, Calendar, Utensils } from 'lucide-react';
 
 const Suggestions = ({ userId, refreshTrigger }) => {
   const [recipes, setRecipes] = useState([]);
@@ -102,23 +102,8 @@ const Suggestions = ({ userId, refreshTrigger }) => {
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {recipes.map((recipe) => (
             <div key={recipe.id} className="card overflow-hidden">
-              <div className="mb-4">
-                <img
-                  src={recipe.photo_url}
-                  alt={recipe.title}
-                  className="w-full h-48 object-cover rounded-lg"
-                  onError={(e) => {
-                    // fallback to food-related images
-                    const fallbackImages = [
-                      'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=500&h=300&fit=crop&crop=center&auto=format&q=80',
-                      'https://images.unsplash.com/photo-1525351484163-7529414344d8?w=500&h=300&fit=crop&crop=center&auto=format&q=80',
-                      'https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=500&h=300&fit=crop&crop=center&auto=format&q=80',
-                      'https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=500&h=300&fit=crop&crop=center&auto=format&q=80',
-                      'https://images.unsplash.com/photo-1551782450-a2132b4ba21d?w=500&h=300&fit=crop&crop=center&auto=format&q=80'
-                    ];
-                    e.target.src = fallbackImages[Math.floor(Math.random() * fallbackImages.length)];
-                  }}
-                />
+              <div className="mb-4 flex items-center justify-center h-48 bg-gradient-to-br from-burgundy-50 to-cream-50 rounded-lg">
+                <Utensils className="h-16 w-16 text-burgundy-400" />
               </div>
               
               <div className="space-y-3">
